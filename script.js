@@ -2,15 +2,17 @@
 const deckData = [
     { image: 'img/pokemons/Agenda2030.png', name: 'Agenda 2030' },
     { image: 'img/pokemons/Inaki.png', name: 'Iñaki' },
-    { image: 'img/pokemons/Ramen.png', name: 'Ramen' }
+    { image: 'img/pokemons/Ramen.png', name: 'Ramen' },
+    { image: 'img/pokemons/Krokocock.png', name: 'Krokocock' },
+    { image: 'img/pokemons/LariosTonic.png', name: 'Larios Tonic' },
+    { image: 'img/pokemons/SopaDeAjo.png', name: 'Sopa de ajo' },
+    { image: 'img/pokemons/Tomboy.png', name: 'Tomboy' }
 ];
 
 const container = document.getElementById('deck-container');
 
-// Generar las 6 cartas
+// Bucle inicial para crear 6 slots de cartas
 for (let i = 0; i < 6; i++) {
-    const data = deckData[i % deckData.length];
-    
     container.innerHTML += `
         <div class="card-container">
             <div class="card" id="card-${i}">
@@ -19,40 +21,37 @@ for (let i = 0; i < 6; i++) {
                 </div>
                 <div class="card-face card-back">
                     <img src="img/fondo_carta.png" class="back-template">
-                    <img id="img-${i}" src="${data.image}" class="back-content">
-                    <div id="text-${i}" class="back-text">${data.name}</div>
+                    <img id="img-${i}" src="" class="back-content">
+                    <div id="text-${i}" class="back-text"></div>
                 </div>
             </div>
         </div>
     `;
 }
 
-let nextImageIndex = 6; // Empezamos a contar desde la que no se ha mostrado
-
 function flipSequence() {
+    // 1. Barajar el mazo para elegir 6 cartas al azar
+    const shuffled = [...deckData].sort(() => 0.5 - Math.random());
+    const selectedCards = shuffled.slice(0, 6);
+
     for (let i = 0; i < 6; i++) {
-        // --- 1. VELOCIDAD DE LA OLA ---
-        // Reducido de 600ms a 200ms para que salten casi seguidas
         setTimeout(() => {
             const card = document.getElementById(`card-${i}`);
+            const imgElement = document.getElementById(`img-${i}`);
+            const textElement = document.getElementById(`text-${i}`);
+
+            // 2. Cargar los datos de la carta elegida ANTES de que se de la vuelta
+            imgElement.src = selectedCards[i].image;
+            textElement.innerText = selectedCards[i].name;
+
+            // 3. Lanzar la animación de salto y giro
             card.classList.add('is-flipped');
 
-            // --- 2. TIEMPO DE EXPOSICIÓN ---
-            // Aumentado a 8 segundos para que el streamer y el chat las vean bien
             setTimeout(() => {
                 card.classList.remove('is-flipped');
-                
-                // Cambiamos imagen y texto cuando la carta está de espaldas
-                setTimeout(() => {
-                    const nextData = deckData[nextImageIndex % deckData.length];
-                    document.getElementById(`img-${i}`).src = nextData.image;
-                    document.getElementById(`text-${i}`).innerText = nextData.name;
-                    nextImageIndex++;
-                }, 300);
+            }, 8000); // Se quedan abiertas 8 segundos
 
-            }, 8000); // Tiempo que se queda la carta a la vista
-
-        }, i * 200); // Tiempo entre cada carta
+        }, i * 200); // Salto en ráfaga (0.2s entre cada una)
     }
 }
 
