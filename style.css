@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Reset para evitar problemas de espacio */
+* { box-sizing: border-box; }
+
+body {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.deck-container {
+    display: flex;
+    gap: 15px;
+}
+
+.card-container {
+    width: 160px;
+    height: 240px;
+    perspective: 1000px;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.card.is-flipped { transform: rotateY(180deg); }
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    overflow: hidden;
+    /* Sombra para que la carta resalte sobre el stream */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+}
+
+/* CARA TRASERA (Donde está el texto y la foto) */
+.card-back {
+    transform: rotateY(180deg);
+    background-color: #222; /* Fondo de seguridad por si falla la imagen */
+}
+
+/* El fondo/marco de la carta */
+.back-template {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    object-fit: fill; /* Forzamos a que rellene el marco */
+}
+
+/* La foto del contenido */
+.back-content {
+    position: absolute;
+    top: 12%; /* Ajusta según tu marco */
+    left: 10%;
+    width: 80%;
+    height: 55%;
+    z-index: 2;
+    object-fit: cover;
+}
+
+/* El texto Pixel Art */
+.back-text {
+    position: absolute;
+    bottom: 12%;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+    text-align: center;
+    
+    /* Fuente Pixel */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px; /* Tamaño pequeño para pixel art */
+    color: black;
+    
+    /* Evitar suavizado para que el pixel se vea nítido */
+    image-rendering: pixelated;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+}
+
+img { width: 100%; height: 100%; display: block; }
