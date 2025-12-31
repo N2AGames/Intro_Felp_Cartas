@@ -62,3 +62,48 @@ function flipSequence() {
 setInterval(flipSequence, 12000);
 // Primera vez tras un pequeño delay
 setTimeout(flipSequence, 1000);
+
+///#region CONTROL DE AUDIO
+document.addEventListener('DOMContentLoaded', () => {
+    const music = document.getElementById('bg-music');
+    const muteBtn = document.getElementById('mute-control');
+    const muteIcon = document.getElementById('mute-icon');
+
+    if (music) {
+        music.volume = 0.2;
+        music.currentTime = 0; // Asegura que empiece en el segundo 0
+
+        // Función para intentar reproducir automáticamente
+        const startMusic = () => {
+            music.play().then(() => {
+                muteIcon.innerText = "🔊";
+                muteBtn.style.opacity = "1";
+                // Una vez que suena, quitamos los escuchadores globales de inicio
+                window.removeEventListener('click', startMusic);
+                window.removeEventListener('keydown', startMusic);
+            }).catch(err => {
+                console.log("Reproducción automática bloqueada. Esperando interacción.");
+            });
+        };
+
+        // 1. Intentar arrancar ya mismo
+        startMusic();
+
+        // 2. Si falla, arrancar al primer clic o tecla (necesario en OBS/Navegadores)
+        window.addEventListener('click', startMusic);
+        window.addEventListener('keydown', startMusic);
+
+        // 3. Control manual del botón Mute
+        muteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita conflictos con el escuchador de ventana
+            if (music.paused) {
+                startMusic();
+            } else {
+                music.pause();
+                muteIcon.innerText = "🔇";
+                muteBtn.style.opacity = "0.5";
+            }
+        });
+    }
+});
+//#endregion
