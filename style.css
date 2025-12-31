@@ -7,6 +7,23 @@ body {
     margin: 0;
     background-color: #37946e; /* Fondo base muy oscuro */
     overflow: hidden;
+    display: flex;
+    flex-direction: row;
+}
+
+.c-1 {
+    padding: 0px 50px;
+}
+
+.chanel-info {
+    background: rgba(10, 3, 43, 0.801);
+    width: 400px;
+    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-right: goldenrod 4px dashed;
+    border-left: goldenrod 4px dashed;
 }
 
 .pres-container {
@@ -14,7 +31,8 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 80px;
-    height: auto;
+    height: 100vh;
+    min-height: 100vh;
     width: auto;
     row-gap: 200px;
 }
