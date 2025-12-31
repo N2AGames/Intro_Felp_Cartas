@@ -4,15 +4,9 @@
 * { box-sizing: border-box; }
 
 body {
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
+    background-color: #37946e; /* Fondo base muy oscuro */
     overflow: hidden;
-    background-image: url("img/tapete.png");
-    background-color: #fff;
 }
 
 .pres-container {
@@ -22,10 +16,11 @@ body {
     padding: 80px;
     height: auto;
     width: auto;
+    row-gap: 200px;
 }
 
 .title-logo {
-    width: 400px;
+    height: 200px;
 }
 
 .deck-container {
