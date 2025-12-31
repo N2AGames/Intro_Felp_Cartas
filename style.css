@@ -15,62 +15,85 @@ body {
 
 .deck-container {
     display: flex;
-    gap: 15px;
+    gap: 50px;
 }
 
 .card-container {
     width: 160px;
     height: 240px;
     perspective: 1000px;
+    /* Aplicamos la sombra aquí usando filter */
+    filter: drop-shadow(0px 10px 8px rgba(0,0,0,0.5));
 }
 
+/* La carta base */
 .card {
     width: 100%;
     height: 100%;
     position: relative;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
 }
 
-.card.is-flipped { transform: rotateY(180deg); }
+/* Animación cuando se añade la clase .is-flipped */
+.card.is-flipped {
+    animation: jump-in 0.8s forwards;
+}
+
+/* Animación cuando se quita la clase (vuelta al dorso) */
+.card:not(.is-flipped) {
+    animation: jump-out 0.6s forwards;
+}
+
+@keyframes jump-in {
+    0% { transform: rotateY(0deg) translateY(0) scale(1); }
+    30% { transform: rotateY(90deg) translateY(-50px) scale(1.1); } /* Punto más alto */
+    60% { transform: rotateY(180deg) translateY(0) scale(1); }    /* Cae */
+    80% { transform: rotateY(180deg) translateY(-10px) scale(1); } /* Rebote pequeño */
+    100% { transform: rotateY(180deg) translateY(0) scale(1); }   /* Reposo */
+}
+
+@keyframes jump-out {
+    0% { transform: rotateY(180deg) translateY(0); }
+    50% { transform: rotateY(90deg) translateY(-30px); } /* Salto pequeño al volver */
+    100% { transform: rotateY(0deg) translateY(0); }
+}
 
 .card-face {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    border-radius: 10px;
-    overflow: hidden;
-    /* Sombra para que la carta resalte sobre el stream */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+    background: transparent !important; /* Asegura que no haya fondo sólido */
 }
 
-/* CARA TRASERA (Donde está el texto y la foto) */
 .card-back {
     transform: rotateY(180deg);
-    background-color: #222; /* Fondo de seguridad por si falla la imagen */
+    position: relative;
+    /* Aquí sí podemos usar overflow hidden para que la FOTO no se salga de las esquinas */
+    border-radius: 15px; 
+    overflow: hidden; 
 }
 
-/* El fondo/marco de la carta */
+/* El marco por encima de todo */
 .back-template {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
-    object-fit: fill; /* Forzamos a que rellene el marco */
+    z-index: 1; /* El fondo abajo del todo */
 }
 
 /* La foto del contenido */
 .back-content {
     position: absolute;
-    top: 12%; /* Ajusta según tu marco */
-    left: 10%;
-    width: 80%;
-    height: 55%;
-    z-index: 2;
+    top: 12%; 
+    left: 12%;
+    width: 76%;
+    height: 50%;
+    z-index: 2; /* La foto encima del fondo */
     object-fit: cover;
+    border-radius: 5px; /* Para que la foto también tenga esquinas redondeadas */
 }
 
 /* El texto Pixel Art */

@@ -7,8 +7,8 @@ const deckData = [
 
 const container = document.getElementById('deck-container');
 
-// Generar las 5 cartas
-for (let i = 0; i < 5; i++) {
+// Generar las 6 cartas
+for (let i = 0; i < 6; i++) {
     const data = deckData[i % deckData.length];
     
     container.innerHTML += `
@@ -27,10 +27,10 @@ for (let i = 0; i < 5; i++) {
     `;
 }
 
-let nextImageIndex = 5; // Empezamos a contar desde la que no se ha mostrado
+let nextImageIndex = 6; // Empezamos a contar desde la que no se ha mostrado
 
 function flipSequence() {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
         // --- 1. VELOCIDAD DE LA OLA ---
         // Reducido de 600ms a 200ms para que salten casi seguidas
         setTimeout(() => {
@@ -48,7 +48,7 @@ function flipSequence() {
                     document.getElementById(`img-${i}`).src = nextData.image;
                     document.getElementById(`text-${i}`).innerText = nextData.name;
                     nextImageIndex++;
-                }, 400);
+                }, 300);
 
             }, 8000); // Tiempo que se queda la carta a la vista
 
