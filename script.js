@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.removeEventListener('keydown', startMusic);
             }).catch(err => {
                 console.log("Reproducción automática bloqueada. Esperando interacción.");
+                muteIcon.innerText = "🔇";
+                muteBtn.style.opacity = "0.5";
             });
         };
 
