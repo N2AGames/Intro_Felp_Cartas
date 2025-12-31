@@ -69,8 +69,6 @@ body {
 .card-back {
     transform: rotateY(180deg);
     position: relative;
-    /* Aquí sí podemos usar overflow hidden para que la FOTO no se salga de las esquinas */
-    border-radius: 15px; 
     overflow: hidden; 
 }
 
