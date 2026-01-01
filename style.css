@@ -170,7 +170,7 @@ body {
 /* La foto del contenido */
 .back-content {
     position: absolute;
-    top: 12%; 
+    top: 20%; 
     left: 12%;
     width: 76%;
     height: auto;
@@ -184,22 +184,83 @@ body {
 .back-text {
     position: absolute;
     bottom: 12%;
-    left: 0;
+    left: 0%;
     width: 100%;
     z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    
+}
+
+.name-box {
+    width: 78%;
+    max-width: 86%;
+    min-width: 40%;
+    margin: 0 auto;
+    /* vertical padding only; horizontal spacing handled by edges/center */
+    padding: clamp(0.45vmin, 1.2vw, 0.8vmin) 0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    --name-edge-width: clamp(1.2vmin, 3vw, 2.2vmin);
+    --name-center-height: clamp(2.2vmin, 4.5vw, 2.8vmin);
+}
+
+.name-left, .name-right {
+    flex: 0 0 var(--name-edge-width);
+    height: var(--name-center-height);
+    background-repeat: no-repeat;
+    background-size: contain;
+    image-rendering: pixelated;
+}
+
+.name-left {
+    background-image: url('img/name_box_l.png');
+    background-position: right;
+}
+.name-right {
+    background-image: url('img/name_box_r.png');
+    background-position: left;
+}
+
+.name-center {
+    flex: 1 1 auto;
+    height: var(--name-center-height);
+    background-image: url('img/name_box.png');
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: auto 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 clamp(0.6vmin, 1.6vw, 1vmin);
+    image-rendering: pixelated;
+    box-sizing: border-box;
+}
+
+.text-display {
     /* Fuente Pixel */
     font-family: 'Press Start 2P', cursive;
-    font-size: clamp(0.6vmin, 1.6vw, 1vmin); /* Tamaño adaptable para pixel art */
+    font-size: 0.5rem;
     color: black;
     
     /* Evitar suavizado para que el pixel se vea nítido */
     image-rendering: pixelated;
     -webkit-font-smoothing: none;
-} 
 
-img { max-width: 100%; height: auto; display: block; }
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    white-space: inherit;
+    overflow: hidden;
+}
+
+img { max-width: 100%; height: auto; }
 
 /* Imagenes dentro de cards deben cubrir su contenedor */
 .back-content { overflow: hidden; }

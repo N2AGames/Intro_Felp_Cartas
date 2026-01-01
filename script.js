@@ -22,7 +22,15 @@ for (let i = 0; i < 5; i++) {
                 <div class="card-face card-back">
                     <img src="img/fondo_carta.png" class="back-template">
                     <img id="img-${i}" src="" class="back-content">
-                    <div id="text-${i}" class="back-text"></div>
+                    <div class="back-text">
+                        <div class="name-box">
+                            <div class="name-left" aria-hidden="true"></div>
+                            <div class="name-center">
+                                <div id="text-${i}" class="text-display"></div>
+                            </div>
+                            <div class="name-right" aria-hidden="true"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
