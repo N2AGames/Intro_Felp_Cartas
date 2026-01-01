@@ -47,7 +47,7 @@ async function tintImage(element, color) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        const stauration = 0.5;
+        const stauration = 0.4;
 
         canvas.width = img.width;
         canvas.height = img.height;
@@ -73,7 +73,7 @@ async function tintImage(element, color) {
             const isWhite = r > 240 && g > 240 && b > 240;
 
             if (!isWhite) {
-                // Aplicar el tinte (mezcla simple al 40% como tenías antes)
+                // Aplicar el tinte (mezcla simple al porcentaje establecido)
                 data[i]     = r * 0.6 + tint.r * stauration;
                 data[i + 1] = g * 0.6 + tint.g * stauration;
                 data[i + 2] = b * 0.6 + tint.b * stauration;
