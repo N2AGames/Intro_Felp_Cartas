@@ -297,8 +297,28 @@ img { max-width: 100%; height: auto; }
     position: fixed;
     top: clamp(0.8vmin, 2.5vw, 1.6vmin);
     right: clamp(0.8vmin, 2.5vw, 1.6vmin);
-    width: clamp(5vmin, 8vw, 8vmin);
-    height: clamp(5vmin, 8vw, 8vmin);
+    width: clamp(5vmin, 8vw, 4vmin);
+    height: clamp(5vmin, 8vw, 4vmin);
+    background: #555555;
+    border: 0.45vmin solid #fff;
+    border-radius: 1vmin;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9999; /* Muy alto para estar por encima de todo */
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
+    image-rendering: pixelated;
+}
+
+.toggle-button {
+    position: fixed;
+    top: clamp(0.8vmin, 2.5vw, 1.6vmin);
+    left: clamp(2vmin, 4vw, 50vmin);
+    width: clamp(5vmin, 8vw, 4vmin);
+    height: clamp(5vmin, 8vw, 4vmin);
     background: #555555;
     border: 0.45vmin solid #fff;
     border-radius: 1vmin;

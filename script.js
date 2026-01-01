@@ -1,12 +1,12 @@
 // Configuración de cartas (Imagen + Texto) — ahora con color de fondo para cada carta
 const deckData = [
-    { image: 'img/pokemons/Agenda2030.png', name: 'Agenda 2030', color: '#3aa76a' },
-    { image: 'img/pokemons/Inaki.png', name: 'Iñaki', color: '#4aa3ff' },
-    { image: 'img/pokemons/Ramen.png', name: 'Ramen', color: '#ff9a51' },
-    { image: 'img/pokemons/Krokocock.png', name: 'Krokocock', color: '#e86d6d' },
+    { image: 'img/pokemons/Agenda2030.png', name: 'Agenda 2030', color: '#214586' },
+    { image: 'img/pokemons/Inaki.png', name: 'Iñaki', color: '#8f0000' },
+    { image: 'img/pokemons/Ramen.png', name: 'Ramen', color: '#25bb00' },
+    { image: 'img/pokemons/Krokocock.png', name: 'Krokocock', color: '#330000' },
     { image: 'img/pokemons/LariosTonic.png', name: 'Larios Tonic', color: '#a05cff' },
     { image: 'img/pokemons/SopaDeAjo.png', name: 'Sopa de ajo', color: '#ffd36b' },
-    { image: 'img/pokemons/Tomboy.png', name: 'Tomboy', color: '#6bd3d3' }
+    { image: 'img/pokemons/Tomboy.png', name: 'Tomboy', color: '#c94000' }
 ];
 
 const container = document.getElementById('deck-container');
@@ -139,11 +139,14 @@ setInterval(flipSequence, 12000);
 // Primera vez tras un pequeño delay
 setTimeout(flipSequence, 1000);
 
-///#region CONTROL DE AUDIO
+///#region CONTROL DE AUDIO Y BOTONES
 document.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('bg-music');
     const muteBtn = document.getElementById('mute-control');
     const muteIcon = document.getElementById('mute-icon');
+
+    const toggleChanelInfoBtn = document.getElementById('toggle-chanel-info');
+    const chanelInfo = document.querySelector('.chanel-info');
 
     if (music) {
         music.volume = 0.2;
@@ -180,6 +183,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 music.pause();
                 muteIcon.innerText = "🔇";
                 muteBtn.style.opacity = "0.5";
+            }
+        });
+
+        // Control del botón de mostrar/ocultar info del canal
+        toggleChanelInfoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (chanelInfo.style.display === 'block') {
+                chanelInfo.style.display = 'none';
+            } else {
+                chanelInfo.style.display = 'block';
             }
         });
     }
