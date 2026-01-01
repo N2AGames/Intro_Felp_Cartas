@@ -199,102 +199,97 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 //#endregion
 
-// --------- Smoke effect (ligero, canvas + partículas) ---------
+// --------- Stars background (canvas + particles) ---------
 (function(){
-    const canvas = document.getElementById('smoke-canvas');
-    if (!canvas) return; // Si falta el canvas, salimos
+    const canvas = document.getElementById('stars-canvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let w = 0, h = 0, dpr = window.devicePixelRatio || 1;
 
-    const opts = {
-        particleCount: Math.min(120, Math.max(30, Math.floor((window.innerWidth*window.innerHeight)/80000))),
-        maxSize: 160,
-        speed: 0.25,
-        blur: 8
+    let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    let W = 0, H = 0;
+
+    const defaults = {
+        count: Math.min(600, Math.max(30, Math.floor((window.innerWidth*window.innerHeight)/60000))),
+        size: 3,
+        twinkle: 0.6,
+        brightness: 1.0,
+        hue: 40
     };
 
-    let particles = [];
+    const opts = Object.assign({}, defaults);
+    let stars = [];
+    let raf = null;
+    let startTime = performance.now();
 
     function resize(){
-        dpr = window.devicePixelRatio || 1;
-        w = canvas.width = Math.floor(window.innerWidth * dpr);
-        h = canvas.height = Math.floor(window.innerHeight * dpr);
+        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        const scaleFactor = (window.innerWidth < 700) ? 0.75 : 1.0;
+        W = canvas.width = Math.floor(window.innerWidth * dpr * scaleFactor);
+        H = canvas.height = Math.floor(window.innerHeight * dpr * scaleFactor);
         canvas.style.width = window.innerWidth + 'px';
         canvas.style.height = window.innerHeight + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.setTransform(1,0,0,1,0,0);
     }
 
-    function makeParticle(){
+    function makeStar(i){
+        const size = (Math.random() * opts.size) + 0.5;
         return {
-            x: Math.random()*window.innerWidth,
-            y: window.innerHeight + Math.random()*200, // empiezan cerca de la parte baja
-            size: (Math.random()*opts.maxSize*0.6) + (opts.maxSize*0.2),
-            life: Math.random()*80,
-            ttl: Math.random()*300 + 200,
-            seed: Math.random()*1000
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size,
+            base: Math.random() * 0.8 + 0.2,
+            phase: Math.random() * Math.PI * 2,
+            drift: (Math.random()-0.5) * 0.02,
+            hueOffset: (Math.random()-0.5) * 30
         };
     }
 
-    function initParticles(){ particles = []; for(let i=0;i<opts.particleCount;i++) particles.push(makeParticle()); }
-
-    let t0 = 0;
-    function update(dt){
-        t0 += dt;
-        for(let p of particles){
-            const nx = p.x * 0.002;
-            const ny = p.y * 0.002;
-            const angle = Math.sin(nx + t0*0.0006 + p.seed) + Math.cos(ny - t0*0.0008 + p.seed*0.5);
-            const speed = opts.speed * (0.5 + Math.random()*0.5);
-            p.x += Math.cos(angle) * speed * (1 + p.size/120);
-            p.y += Math.sin(angle) * speed * (0.6 + p.size/160);
-            p.life += 1;
-            if (p.life > p.ttl || p.x < -p.size || p.x > window.innerWidth + p.size || p.y < -p.size || p.y > window.innerHeight + p.size){
-                p.x = Math.random()*window.innerWidth;
-                p.y = window.innerHeight + Math.random()*50;
-                p.life = 0;
-                p.ttl = Math.random()*300 + 200;
-                p.size = (Math.random()*opts.maxSize*0.6) + (opts.maxSize*0.2);
-            }
-        }
+    function initStars(){
+        stars = [];
+        for (let i=0;i<opts.count;i++) stars.push(makeStar(i));
     }
 
-    function draw(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+    function updateAndDraw(now){
+        const t = (now - startTime) * 0.001;
+        ctx.clearRect(0,0,canvas.width, canvas.height);
         ctx.globalCompositeOperation = 'lighter';
-        for(let p of particles){
-            const lifeRatio = p.life / p.ttl;
-            const alpha = Math.max(0, 0.18 * (1 - lifeRatio));
-            const r = p.size * (0.8 + 0.6*Math.sin(p.seed));
-            const x = p.x;
-            const y = p.y;
-            const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-            grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
-            grad.addColorStop(0.5, `rgba(200,200,200,${alpha*0.4})`);
-            grad.addColorStop(1, `rgba(200,200,200,0)`);
+
+        for (let s of stars){
+            // slight drifting
+            s.x += s.drift;
+            if (s.x < -50) s.x = W + 50;
+            if (s.x > W + 50) s.x = -50;
+
+            // twinkle
+            const b = s.base * (0.5 + 0.5 * Math.sin(t * opts.twinkle + s.phase));
+            const alpha = Math.max(0, Math.min(1, b * opts.brightness));
+
+            // radial gradient star (soft glow)
+            const r = s.size * (1 + 1.2 * b);
+            const x = s.x;
+            const y = s.y;
+            const hue = (opts.hue + s.hueOffset + 360) % 360;
+            const col = `hsla(${hue}, 90%, 60%, ${alpha})`;
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, r*6);
+            grad.addColorStop(0, col);
+            grad.addColorStop(0.15, `hsla(${hue},90%,65%,${alpha*0.6})`);
+            grad.addColorStop(0.35, `hsla(${hue},90%,60%,${alpha*0.15})`);
+            grad.addColorStop(1, `hsla(${hue},90%,60%,0)`);
+
             ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI*2);
+            ctx.arc(x, y, r*6, 0, Math.PI*2);
             ctx.fill();
         }
-    }
 
-    let raf = null;
-    let last = performance.now();
-    function frame(now){
-        const dt = now - last;
-        last = now;
-        update(dt);
-        draw();
-        raf = requestAnimationFrame(frame);
+        raf = requestAnimationFrame(updateAndDraw);
     }
 
     function start(){
         resize();
-        initParticles();
-        // aplicar blur inicial
-        canvas.style.filter = `blur(${opts.blur}px)`;
-        last = performance.now();
-        if (!raf) raf = requestAnimationFrame(frame);
+        initStars();
+        startTime = performance.now();
+        if (!raf) raf = requestAnimationFrame(updateAndDraw);
     }
 
     function stop(){
@@ -302,76 +297,53 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0,0,canvas.width,canvas.height);
     }
 
-    function setOptions(newOpts){
-        Object.assign(opts, newOpts);
-        if ('particleCount' in newOpts) {
-            opts.particleCount = Math.max(10, Math.min(2000, Math.round(opts.particleCount)));
-            initParticles();
-        }
-        if ('maxSize' in newOpts) {
-            opts.maxSize = Math.max(4, Math.round(opts.maxSize));
-        }
-        if ('blur' in newOpts) {
-            canvas.style.filter = `blur(${opts.blur}px)`;
-        }
+    function setOptions(o){
+        if ('count' in o){ opts.count = Math.max(0, Math.min(2000, Math.round(o.count))); initStars(); }
+        if ('size' in o) opts.size = Math.max(0.5, Math.min(40, o.size));
+        if ('twinkle' in o) opts.twinkle = Math.max(0.01, Math.min(5, o.twinkle));
+        if ('brightness' in o) opts.brightness = Math.max(0, Math.min(2, o.brightness));
+        if ('hue' in o) opts.hue = ((o.hue % 360) + 360) % 360;
     }
 
     function getOptions(){ return Object.assign({}, opts); }
 
-    function attachControls(){
-        const toggle = document.getElementById('smoke-toggle');
-        const count = document.getElementById('smoke-count');
-        const speedEl = document.getElementById('smoke-speed');
-        const size = document.getElementById('smoke-size');
-        const blurEl = document.getElementById('smoke-blur');
-        const reset = document.getElementById('smoke-reset');
-        const countVal = document.getElementById('smoke-count-val');
-        const speedVal = document.getElementById('smoke-speed-val');
-        const sizeVal = document.getElementById('smoke-size-val');
-        const blurVal = document.getElementById('smoke-blur-val');
-        if (!count || !speedEl) return; // controles no presentes
+    function attachStarControls(){
+        const toggle = document.getElementById('stars-toggle');
+        const countEl = document.getElementById('stars-count');
+        const sizeEl = document.getElementById('stars-size');
+        const twinkleEl = document.getElementById('stars-twinkle');
+        const brightEl = document.getElementById('stars-bright');
+        const hueEl = document.getElementById('stars-hue');
+        const reset = document.getElementById('stars-reset');
+        const countVal = document.getElementById('stars-count-val');
+        const sizeVal = document.getElementById('stars-size-val');
+        const twinkleVal = document.getElementById('stars-twinkle-val');
+        const brightVal = document.getElementById('stars-bright-val');
+        const hueVal = document.getElementById('stars-hue-val');
+        if (!countEl) return;
 
-        // Inicializar valores en UI
-        count.value = opts.particleCount;
-        speedEl.value = opts.speed;
-        size.value = opts.maxSize;
-        blurEl.value = opts.blur;
-        countVal.innerText = count.value;
-        speedVal.innerText = parseFloat(speedEl.value).toFixed(2);
-        sizeVal.innerText = size.value;
-        blurVal.innerText = blurEl.value + 'px';
+        // init UI
+        countEl.value = opts.count; countVal.innerText = opts.count;
+        sizeEl.value = opts.size; sizeVal.innerText = opts.size;
+        twinkleEl.value = opts.twinkle; twinkleVal.innerText = parseFloat(opts.twinkle).toFixed(2);
+        brightEl.value = opts.brightness; brightVal.innerText = parseFloat(opts.brightness).toFixed(2);
+        hueEl.value = opts.hue; hueVal.innerText = opts.hue;
 
-        // Listeners
         toggle.addEventListener('change', (e)=>{ if (e.target.checked) start(); else stop(); });
-        count.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); countVal.innerText = v; setOptions({particleCount: v}); });
-        speedEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); speedVal.innerText = v.toFixed(2); setOptions({speed: v}); });
-        size.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); sizeVal.innerText = v; setOptions({maxSize: v}); });
-        blurEl.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); blurVal.innerText = v + 'px'; setOptions({blur: v}); });
-        reset.addEventListener('click', ()=>{
-            const defaults = { particleCount: Math.min(120, Math.max(30, Math.floor((window.innerWidth*window.innerHeight)/80000))), maxSize:160, speed:0.25, blur:8 };
-            count.value = defaults.particleCount;
-            speedEl.value = defaults.speed;
-            size.value = defaults.maxSize;
-            blurEl.value = defaults.blur;
-            countVal.innerText = count.value;
-            speedVal.innerText = parseFloat(speedEl.value).toFixed(2);
-            sizeVal.innerText = size.value;
-            blurVal.innerText = blurEl.value + 'px';
-            setOptions(defaults);
-        });
+        countEl.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); countVal.innerText = v; setOptions({count: v}); });
+        sizeEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); sizeVal.innerText = v; setOptions({size: v}); });
+        twinkleEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); twinkleVal.innerText = v.toFixed(2); setOptions({twinkle: v}); });
+        brightEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); brightVal.innerText = v.toFixed(2); setOptions({brightness: v}); });
+        hueEl.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); hueVal.innerText = v; setOptions({hue: v}); });
+        reset.addEventListener('click', ()=>{ countEl.value = defaults.count; sizeEl.value = defaults.size; twinkleEl.value = defaults.twinkle; brightEl.value = defaults.brightness; hueEl.value = defaults.hue; countVal.innerText = defaults.count; sizeVal.innerText = defaults.size; twinkleVal.innerText = defaults.twinkle.toFixed(2); brightVal.innerText = defaults.brightness.toFixed(2); hueVal.innerText = defaults.hue; setOptions(defaults); });
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachControls); else attachControls();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachStarControls); else attachStarControls();
+    window.addEventListener('resize', () => { resize(); initStars(); });
 
-    window.addEventListener('resize', () => { resize(); initParticles(); });
+    // Expose API
+    window.startStars = start; window.stopStars = stop; window.setStarOptions = setOptions; window.getStarOptions = getOptions; window.stars = { start, stop, setOptions, getOptions };
 
-    // Exponer funciones por si se quieren controlar desde la consola
-    window.startSmoke = start;
-    window.stopSmoke = stop;
-    window.setSmokeOptions = setOptions;
-    window.getSmokeOptions = getOptions;
-    window.smoke = { start, stop, setOptions, getOptions };
-
-    // Arranque automático
+    // start by default
     start();
 })();

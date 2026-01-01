@@ -345,27 +345,39 @@ img { max-width: 100%; height: auto; }
     .card-container { width: clamp(18vmin, 44vw, 34vmin); aspect-ratio: 2 / 3; }
 }
 
-/* --------- Smoke overlay --------- */
-#smoke-canvas {
+/* --------- Stars background canvas --------- */
+#stars-canvas {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
-    pointer-events: none; /* No interfiere con clicks */
-    mix-blend-mode: screen; /* Prueba también 'lighten' o 'overlay' */
-    filter: blur(8px);
-    opacity: 0.9;
+    z-index: 0; /* Debajo de todo el contenido */
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 1;
 }
 
-/* Aseguramos que el contenido quede por encima del canvas */
+/* Canvas para el modo psychedelic (usa WebGL) */
+#psy-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2; /* encima de todo el contenido */
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 1;
+    display: none; /* se muestra sólo en modo psychedelic */
+}
+
+/* Aseguramos que el contenido quede por encima del canvas (en general) */
 .main, .c-1 {
     position: relative;
     z-index: 1;
 }
 
-/* Panel de controles dentro del sidebar */
-.smoke-controls {
+/* Panel de controles dentro del sidebar (estrellas) */
+.star-controls {
     color: #fff;
     padding: clamp(1vmin, 2vw, 1.2vmin);
     margin-top: clamp(3.6vmin, 6vw, 3.2rem); /* baja el panel para que no lo pise el toggle */
@@ -378,7 +390,7 @@ img { max-width: 100%; height: auto; }
     font-size: 0.75rem;
     letter-spacing: 0.02rem;
 }
-.smoke-controls h3{
+.star-controls h3{
     margin: 0 0 0.4rem 0;
     font-size: 0.85rem;
     color: #ffd36b;
@@ -400,6 +412,6 @@ img { max-width: 100%; height: auto; }
 .control-note{ color: rgba(255,255,255,0.8); font-size:0.68rem; }
 
 @media (max-width: 600px) {
-    #smoke-canvas { filter: blur(6px); opacity: 0.85; }
-    .smoke-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(4.5vmin, 8vw, 3rem); }
+    #stars-canvas { opacity: 0.9; }
+    .star-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(4.5vmin, 8vw, 3rem); }
 }  
