@@ -24,11 +24,12 @@ for (let i = 0; i < 5; i++) {
                     <img id="img-${i}" src="" class="back-content">
                     <div class="back-text">
                         <div class="name-box">
-                            <div class="name-left" aria-hidden="true"></div>
+                            <div class="name-left"><img src="img/name_box_l.png" alt=""/></div>
                             <div class="name-center">
-                                <div id="text-${i}" class="text-display"></div>
+                                <img src="img/name_box.png" alt="" class="name-center-img"/>
+                                <div id="text-${i}" class="text-display name-center-text"></div>
                             </div>
-                            <div class="name-right" aria-hidden="true"></div>
+                            <div class="name-right"><img src="img/name_box_r.png" alt=""/></div>
                         </div>
                     </div>
                 </div>
@@ -106,9 +107,9 @@ function flipSequence() {
             const imgElement = document.getElementById(`img-${i}`);
             const textElement = document.getElementById(`text-${i}`);
             const cardBack = card.querySelector('.card-back .back-template');
-            const textBoxL = card.querySelector('.back-text .name-left');
-            const textBoxC = card.querySelector('.back-text .name-center');
-            const textBoxR = card.querySelector('.back-text .name-right');
+            const textBoxL = card.querySelector('.back-text .name-left').querySelector('img');
+            const textBoxC = card.querySelector('.back-text .name-center').querySelector('img');
+            const textBoxR = card.querySelector('.back-text .name-right').querySelector('img');
             // 1. Aplicar el tinte de color al fondo de la carta
             tintImage(cardBack, selectedCards[i].color);
             // 2. Y el del recuadro de texto
