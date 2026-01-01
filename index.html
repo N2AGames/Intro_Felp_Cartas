@@ -7,10 +7,41 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <canvas id="smoke-canvas" aria-hidden="true"></canvas>
     <div class="c-1">
-        <button id="toggle-chanel-info" class="toggle-button" style="display: none;">☰</button>
+        <button id="toggle-chanel-info" class="toggle-button">☰</button>
         <div class="chanel-info" style="display: none;">
-            <div class="chanel-placeholder">Placeholder — ocupa 20% del área</div>
+            <div class="smoke-controls">
+                <h3>Control de Humo</h3>
+                <div class="control-row">
+                    <label for="smoke-toggle">Activo</label>
+                    <input type="checkbox" id="smoke-toggle" checked />
+                </div>
+                <div class="control-row">
+                    <label for="smoke-count">Cantidad</label>
+                    <input type="range" id="smoke-count" min="10" max="300" step="1" />
+                    <span id="smoke-count-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="smoke-speed">Velocidad</label>
+                    <input type="range" id="smoke-speed" min="0.05" max="2" step="0.01" />
+                    <span id="smoke-speed-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="smoke-size">Tamaño</label>
+                    <input type="range" id="smoke-size" min="20" max="300" step="1" />
+                    <span id="smoke-size-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="smoke-blur">Blur</label>
+                    <input type="range" id="smoke-blur" min="0" max="30" step="1" />
+                    <span id="smoke-blur-val" class="control-value"></span>
+                </div>
+                <div>
+                    <button id="smoke-reset" class="button">Restablecer</button>
+                </div>
+                <small class="control-note">Ajusta la intensidad y la estética del humo. Usa toggle para habilitar/deshabilitar.</small>
+            </div>
         </div>
     </div>
     <div class="main">
