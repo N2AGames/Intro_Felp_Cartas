@@ -11,13 +11,13 @@ const deckData = [
 
 const container = document.getElementById('deck-container');
 
-// Bucle inicial para crear 6 slots de cartas
-for (let i = 0; i < 6; i++) {
+// Bucle inicial para crear 5 slots de cartas
+for (let i = 0; i < 5; i++) {
     container.innerHTML += `
         <div class="card-container">
             <div class="card" id="card-${i}">
-                <div class="card-face card-front">
-                    <img src="img/reverso_carta.png">
+                <div class="card-face">
+                    <img src="img/reverso_carta.png" class="back-template">
                 </div>
                 <div class="card-face card-back">
                     <img src="img/fondo_carta.png" class="back-template">
@@ -30,11 +30,11 @@ for (let i = 0; i < 6; i++) {
 }
 
 function flipSequence() {
-    // 1. Barajar el mazo para elegir 6 cartas al azar
+    // 1. Barajar el mazo para elegir 5 cartas al azar
     const shuffled = [...deckData].sort(() => 0.5 - Math.random());
-    const selectedCards = shuffled.slice(0, 6);
+    const selectedCards = shuffled.slice(0, 5);
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
         setTimeout(() => {
             const card = document.getElementById(`card-${i}`);
             const imgElement = document.getElementById(`img-${i}`);
