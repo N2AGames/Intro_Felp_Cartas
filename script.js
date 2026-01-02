@@ -209,10 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let W = 0, H = 0;
 
     const defaults = {
-        count: Math.min(600, Math.max(30, Math.floor((window.innerWidth*window.innerHeight)/60000))),
-        size: 3,
-        twinkle: 0.6,
-        brightness: 1.0,
+        count: Math.min(600, Math.max(600, Math.floor((window.innerWidth*window.innerHeight)/60000))),
+        size: 10,
+        twinkle: 1.3,
+        brightness: 1.8,
         hue: 40
     };
 
@@ -343,7 +343,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Expose API
     window.startStars = start; window.stopStars = stop; window.setStarOptions = setOptions; window.getStarOptions = getOptions; window.stars = { start, stop, setOptions, getOptions };
-
-    // start by default
-    start();
 })();
