@@ -59,7 +59,15 @@ body {
         background: rgba(10, 3, 43, 0.9); /* un poco más opaco en móvil */
     }
 
-    
+    .toggle-button {
+        width: clamp(10vmin, 20vw, 10vmin) !important;
+        height: clamp(10vmin, 20vw, 10vmin) !important;
+    }
+
+    .mute-button {
+        width: clamp(10vmin, 20vw, 10vmin) !important;
+        height: clamp(10vmin, 20vw, 10vmin) !important;
+    }
 }
 
 /* Placeholder visual para referencia (ocupa 100% del alto del viewport) */
