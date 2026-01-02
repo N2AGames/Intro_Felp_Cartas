@@ -33,8 +33,33 @@ body {
     gap: clamp(1vmin, 2vw, 2vmin);
     border-right: goldenrod 0.45vmin dashed;
     border-left: goldenrod 0.45vmin dashed;
-    overflow: hidden;
+    overflow-y: auto; /* permitir scroll vertical */
+    -webkit-overflow-scrolling: touch; /* suavizado en iOS */
     box-sizing: border-box;
+}
+
+@media (orientation: portrait) {
+    /* En pantallas verticales mostramos el panel como pantalla completa */
+    .chanel-info {
+        position: fixed !important;
+        inset: 0; /* top:0; right:0; bottom:0; left:0 */
+        width: 100%;
+        min-width: unset;
+        max-width: none;
+        height: 100vh;
+        min-height: 100vh;
+        border-left: none;
+        border-right: none;
+        border-top: goldenrod 0.45vmin dashed;
+        border-bottom: goldenrod 0.45vmin dashed;
+        padding: clamp(2vmin, 4vw, 3vmin);
+        z-index: 9999999 !important; /* forzar por encima de las cartas */
+        transform: translateZ(0); /* crea un nuevo contexto y ayuda con el apilamiento */
+        pointer-events: auto;
+        background: rgba(10, 3, 43, 0.9); /* un poco más opaco en móvil */
+    }
+
+    
 }
 
 /* Placeholder visual para referencia (ocupa 100% del alto del viewport) */
@@ -102,6 +127,11 @@ body {
     align-self: center; /* Centrado vertical dentro de .pres-container */
     margin-block: auto; /* Empuja arriba y abajo para quedar en el centro vertical */
 } 
+
+/* Clase aplicada desde JS para ocultar las cartas cuando el panel está abierto */
+.hidden-by-panel {
+    display: none !important;
+}
 
 .card-container {
     width: clamp(10vh, 10vw, 18vmin);
@@ -307,7 +337,7 @@ img { max-width: 100%; height: auto; }
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 9999; /* Muy alto para estar por encima de todo */
+    z-index: 10000000 !important; /* Muy alto para estar por encima de todo */
     font-family: 'Press Start 2P', cursive;
     font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
     image-rendering: pixelated;
@@ -327,7 +357,7 @@ img { max-width: 100%; height: auto; }
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 9999; /* Muy alto para estar por encima de todo */
+    z-index: 10000000 !important; /* Muy alto para estar por encima de todo */
     font-family: 'Press Start 2P', cursive;
     font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
     image-rendering: pixelated;

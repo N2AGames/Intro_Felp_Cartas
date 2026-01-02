@@ -275,18 +275,42 @@ document.addEventListener('DOMContentLoaded', () => {
         // Control del botón de mostrar/ocultar info del canal
         toggleChanelInfoBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (chanelInfo.style.display === 'block') {
+            const deckEl = document.getElementById('deck-container');
+            const isOpen = window.getComputedStyle(chanelInfo).display !== 'none';
+            const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+
+            if (isOpen) {
+                // Cerrar siempre el panel; quitar la clase si estaba aplicada
                 chanelInfo.style.display = 'none';
+                if (deckEl) deckEl.classList.remove('hidden-by-panel');
             } else {
+                // Abrir el panel. Solo ocultar el mazo si estamos en portrait
                 chanelInfo.style.display = 'block';
+                if (deckEl && isPortrait) deckEl.classList.add('hidden-by-panel');
             }
         });
 
     }
 
-    // Init background & pattern controls (si existen)
+        // Init background & pattern controls (si existen)
     attachBgControls();
     attachPatternControls();
+
+    // Sincronizar visibilidad del mazo con la orientación (solo en portrait)
+    function syncDeckVisibilityWithOrientation(){
+        const deckEl = document.getElementById('deck-container');
+        if (!deckEl) return;
+        const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+        const isOpen = window.getComputedStyle(chanelInfo).display !== 'none';
+        if (isOpen && isPortrait) deckEl.classList.add('hidden-by-panel');
+        else deckEl.classList.remove('hidden-by-panel');
+    }
+
+    // Llamadas para mantener el estado al rotar/redimensionar
+    window.addEventListener('resize', syncDeckVisibilityWithOrientation);
+    window.addEventListener('orientationchange', syncDeckVisibilityWithOrientation);
+    // Ejecutar una vez al inicio
+    syncDeckVisibilityWithOrientation();
 });
 //#endregion
 
