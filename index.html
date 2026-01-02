@@ -16,8 +16,17 @@
             <div class="control-panel" id="bg-panel" style="margin-top: 5vh;">
                 <h3>Fondo</h3>
                 <div class="control-row">
-                    <label for="bg-color">Color fondo</label>
-                    <input type="color" id="bg-color" />
+                    <label>Color fondo</label>
+                </div>
+                <div class="color-picker-custom">
+                    <button class="color-btn" data-color="#37946e" style="background: #37946e;" title="Verde"></button>
+                    <button class="color-btn" data-color="#1a1a2e" style="background: #1a1a2e;" title="Azul oscuro"></button>
+                    <button class="color-btn" data-color="#16213e" style="background: #16213e;" title="Azul marino"></button>
+                    <button class="color-btn" data-color="#0f3460" style="background: #0f3460;" title="Azul"></button>
+                    <button class="color-btn" data-color="#533483" style="background: #533483;" title="Morado"></button>
+                    <button class="color-btn" data-color="#2c2c54" style="background: #2c2c54;" title="Morado oscuro"></button>
+                    <button class="color-btn" data-color="#3d3d3d" style="background: #3d3d3d;" title="Gris oscuro"></button>
+                    <button class="color-btn" data-color="#000000" style="background: #000000;" title="Negro"></button>
                 </div>
             </div>
 
@@ -97,13 +106,13 @@
                     <span id="pattern-opacity-val" class="control-value"></span>
                 </div>
                 <div class="control-row">
-                    <label for="pattern-style">Estilo</label>
-                    <select id="pattern-style">
-                        <option value="diagonal">Diagonal</option>
-                        <option value="grid">Rejilla</option>
-                        <option value="dots">Puntos</option>
-                        <option value="cross">Cruz</option>
-                    </select>
+                    <label>Estilo</label>
+                </div>
+                <div class="pattern-picker-custom">
+                    <button class="pattern-btn active" data-pattern="diagonal">Diagonal</button>
+                    <button class="pattern-btn" data-pattern="grid">Rejilla</button>
+                    <button class="pattern-btn" data-pattern="dots">Puntos</button>
+                    <button class="pattern-btn" data-pattern="cross">Cruz</button>
                 </div>
 
                 <div>

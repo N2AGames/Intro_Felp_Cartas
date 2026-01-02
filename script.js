@@ -188,42 +188,88 @@ function rgbToHex(rgb){
 }
 
 function attachBgControls(){
-    const bgEl = document.getElementById('bg-color');
-    if (!bgEl) return;
+    // Controles personalizados de color
+    const colorBtns = document.querySelectorAll('.color-btn');
+    if (colorBtns.length === 0) return;
+    
     const computedBg = window.getComputedStyle(document.body).backgroundColor;
     const defaultColor = rgbToHex(computedBg);
-    bgEl.value = defaultColor;
-    bgEl.addEventListener('input', (e)=>{ document.body.style.backgroundColor = e.target.value; });
     document.body.style.backgroundColor = defaultColor;
+    
+    // Marcar el color activo por defecto
+    colorBtns.forEach(btn => {
+        if (btn.dataset.color === defaultColor) {
+            btn.classList.add('active');
+        }
+        
+        btn.addEventListener('click', (e) => {
+            // Remover active de todos
+            colorBtns.forEach(b => b.classList.remove('active'));
+            // Agregar active al clickeado
+            e.target.classList.add('active');
+            // Cambiar color de fondo
+            document.body.style.backgroundColor = e.target.dataset.color;
+        });
+    });
 }
 
 function attachPatternControls(){
     const toggle = document.getElementById('pattern-toggle');
     const scaleEl = document.getElementById('pattern-scale');
     const opacityEl = document.getElementById('pattern-opacity');
-    const styleEl = document.getElementById('pattern-style');
+    const patternBtns = document.querySelectorAll('.pattern-btn');
     const reset = document.getElementById('pattern-reset');
     const scaleVal = document.getElementById('pattern-scale-val');
     const opacityVal = document.getElementById('pattern-opacity-val');
     if (!toggle) return;
 
     const defaults = { scale: 10, opacity: 0.5, enabled: false, style: 'diagonal' };
+    let currentStyle = defaults.style;
 
     // init UI values
     scaleEl.value = defaults.scale;
     opacityEl.value = defaults.opacity; opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2);
-    styleEl.value = defaults.style;
     toggle.checked = defaults.enabled;
+    
+    // Marcar el patrón activo por defecto
+    patternBtns.forEach(btn => {
+        if (btn.dataset.pattern === defaults.style) {
+            btn.classList.add('active');
+        }
+        
+        btn.addEventListener('click', (e) => {
+            // Remover active de todos
+            patternBtns.forEach(b => b.classList.remove('active'));
+            // Agregar active al clickeado
+            e.target.classList.add('active');
+            // Actualizar patrón
+            currentStyle = e.target.dataset.pattern;
+            updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff');
+        });
+    });
 
     // listeners
-    toggle.addEventListener('change', (e)=>{ updatePatternLayer(e.target.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff'); });
-    scaleEl.addEventListener('input', (e)=>{ scaleVal.innerText = e.target.value; updatePatternLayer(toggle.checked, parseInt(e.target.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff'); });
-    opacityEl.addEventListener('input', (e)=>{ opacityVal.innerText = parseFloat(e.target.value).toFixed(2); updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(e.target.value), styleEl.value, '#ffffff'); });
-    styleEl.addEventListener('change', (e)=>{ updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), e.target.value, '#ffffff'); });
-    reset.addEventListener('click', ()=>{ scaleEl.value = defaults.scale; opacityEl.value = defaults.opacity; opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2); styleEl.value = defaults.style; toggle.checked = defaults.enabled; updatePatternLayer(defaults.enabled, defaults.scale, defaults.opacity, defaults.style, '#ffffff'); });
+    toggle.addEventListener('change', (e)=>{ updatePatternLayer(e.target.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff'); });
+    scaleEl.addEventListener('input', (e)=>{ scaleVal.innerText = e.target.value; updatePatternLayer(toggle.checked, parseInt(e.target.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff'); });
+    opacityEl.addEventListener('input', (e)=>{ opacityVal.innerText = parseFloat(e.target.value).toFixed(2); updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(e.target.value), currentStyle, '#ffffff'); });
+    reset.addEventListener('click', ()=>{ 
+        scaleEl.value = defaults.scale; 
+        opacityEl.value = defaults.opacity; 
+        opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2); 
+        currentStyle = defaults.style;
+        toggle.checked = defaults.enabled;
+        // Actualizar botón activo
+        patternBtns.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.pattern === defaults.style) {
+                btn.classList.add('active');
+            }
+        });
+        updatePatternLayer(defaults.enabled, defaults.scale, defaults.opacity, defaults.style, '#ffffff'); 
+    });
 
     // init
-    updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff');
+    updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
