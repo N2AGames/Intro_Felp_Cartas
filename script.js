@@ -140,6 +140,89 @@ setInterval(flipSequence, 12000);
 setTimeout(flipSequence, 1000);
 
 ///#region CONTROL DE AUDIO Y BOTONES
+
+// Patrón de fondo (SVG dinámico)
+function makePatternDataURL(scale, opacity, style='diagonal', stroke='#ffffff'){
+    const strokeWidth = Math.max(1, Math.round(scale * 0.04));
+    let body = `<rect width='100%' height='100%' fill='none'/>`;
+
+    if (style === 'diagonal'){
+        body += `<line x1='0' y1='0' x2='${scale}' y2='${scale}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}' stroke-linecap='round'/><line x1='0' y1='${scale}' x2='${scale}' y2='0' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}' stroke-linecap='round'/>`;
+    } else if (style === 'grid'){
+        const mid = scale/2;
+        body += `<line x1='${mid}' y1='0' x2='${mid}' y2='${scale}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}'/><line x1='0' y1='${mid}' x2='${scale}' y2='${mid}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}'/>`;
+    } else if (style === 'dots'){
+        const r = Math.max(1, Math.round(scale * 0.12));
+        body += `<circle cx='${scale/2}' cy='${scale/2}' r='${r}' fill='${stroke}' fill-opacity='${opacity}'/>`;
+    } else if (style === 'cross'){
+        const mid = scale/2;
+        body += `<line x1='0' y1='${mid}' x2='${scale}' y2='${mid}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}'/><line x1='${mid}' y1='0' x2='${mid}' y2='${scale}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${strokeWidth}'/>`;
+        body += `<line x1='0' y1='0' x2='${scale}' y2='${scale}' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${Math.max(1, Math.round(strokeWidth*0.6))}'/><line x1='0' y1='${scale}' x2='${scale}' y2='0' stroke='${stroke}' stroke-opacity='${opacity}' stroke-width='${Math.max(1, Math.round(strokeWidth*0.6))}'/>`;
+    }
+
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${scale}' height='${scale}' viewBox='0 0 ${scale} ${scale}'>${body}</svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function updatePatternLayer(enabled, scale, opacity, style, stroke){
+    const layer = document.getElementById('pattern-layer');
+    if (!layer) return;
+    if (!enabled){
+        layer.style.backgroundImage = 'none';
+        layer.style.opacity = '0';
+        return;
+    }
+    const url = makePatternDataURL(scale, opacity, style, stroke);
+    layer.style.backgroundImage = `url("${url}")`;
+    layer.style.backgroundSize = `${scale}px ${scale}px`;
+    layer.style.opacity = opacity;
+    layer.style.display = 'block';
+}
+
+function rgbToHex(rgb){
+    // rgb(255,255,255) or rgba(...)
+    const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    if (!m) return '#000000';
+    const r = parseInt(m[1],10), g = parseInt(m[2],10), b = parseInt(m[3],10);
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function attachPatternControls(){
+    const toggle = document.getElementById('pattern-toggle');
+    const scaleEl = document.getElementById('pattern-scale');
+    const opacityEl = document.getElementById('pattern-opacity');
+    const styleEl = document.getElementById('pattern-style');
+    const bgEl = document.getElementById('bg-color');
+    const reset = document.getElementById('pattern-reset');
+    const scaleVal = document.getElementById('pattern-scale-val');
+    const opacityVal = document.getElementById('pattern-opacity-val');
+    const styleVal = document.getElementById('pattern-style-val');
+    const bgVal = document.getElementById('bg-color-val');
+    if (!toggle) return;
+
+    const computedBg = window.getComputedStyle(document.body).backgroundColor;
+    const defaults = { scale: 10, opacity: 0.5, enabled: true, style: 'diagonal', bgColor: rgbToHex(computedBg) };
+
+    // init UI values
+    scaleEl.value = defaults.scale; scaleVal.innerText = defaults.scale;
+    opacityEl.value = defaults.opacity; opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2);
+    styleEl.value = defaults.style; styleVal.innerText = defaults.style;
+    bgEl.value = defaults.bgColor; bgVal.innerText = defaults.bgColor;
+    toggle.checked = defaults.enabled;
+
+    // listeners
+    toggle.addEventListener('change', (e)=>{ updatePatternLayer(e.target.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff'); });
+    scaleEl.addEventListener('input', (e)=>{ scaleVal.innerText = e.target.value; updatePatternLayer(toggle.checked, parseInt(e.target.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff'); });
+    opacityEl.addEventListener('input', (e)=>{ opacityVal.innerText = parseFloat(e.target.value).toFixed(2); updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(e.target.value), styleEl.value, '#ffffff'); });
+    styleEl.addEventListener('change', (e)=>{ styleVal.innerText = e.target.value; updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), e.target.value, '#ffffff'); });
+    bgEl.addEventListener('input', (e)=>{ bgVal.innerText = e.target.value; document.body.style.backgroundColor = e.target.value; });
+    reset.addEventListener('click', ()=>{ scaleEl.value = defaults.scale; scaleVal.innerText = defaults.scale; opacityEl.value = defaults.opacity; opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2); styleEl.value = defaults.style; styleVal.innerText = defaults.style; bgEl.value = defaults.bgColor; bgVal.innerText = defaults.bgColor; document.body.style.backgroundColor = defaults.bgColor; toggle.checked = defaults.enabled; updatePatternLayer(defaults.enabled, defaults.scale, defaults.opacity, defaults.style, '#ffffff'); });
+
+    // init
+    document.body.style.backgroundColor = defaults.bgColor;
+    updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), styleEl.value, '#ffffff');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('bg-music');
     const muteBtn = document.getElementById('mute-control');
@@ -195,7 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 chanelInfo.style.display = 'block';
             }
         });
+
     }
+
+    // Init pattern controls (si existen)
+    attachPatternControls();
 });
 //#endregion
 

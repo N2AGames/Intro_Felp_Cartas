@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="pattern-layer" aria-hidden="true"></div>
     <canvas id="stars-canvas" aria-hidden="true"></canvas>
     <div class="c-1">
         <button id="toggle-chanel-info" class="toggle-button">☰</button>
@@ -47,6 +48,43 @@
                     <button id="stars-reset" class="button">Restablecer</button>
                 </div>
                 <small class="control-note">Estrellas que iluminan el fondo (no afectan controles ni cartas).</small>
+            </div>
+
+            <div class="pattern-controls">
+                <h3>Patrón de Fondo</h3>
+                <div class="control-row">
+                    <label for="pattern-toggle">Activo</label>
+                    <input type="checkbox" id="pattern-toggle"/>
+                </div>
+                <div class="control-row">
+                    <label for="pattern-scale">Escala</label>
+                    <input type="range" id="pattern-scale" min="8" max="120" step="1" />
+                    <span id="pattern-scale-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="pattern-opacity">Opacidad</label>
+                    <input type="range" id="pattern-opacity" min="0" max="1" step="0.01" />
+                    <span id="pattern-opacity-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="pattern-style">Estilo</label>
+                    <select id="pattern-style">
+                        <option value="diagonal">Diagonal</option>
+                        <option value="grid">Rejilla</option>
+                        <option value="dots">Puntos</option>
+                        <option value="cross">Cruz</option>
+                    </select>
+                    <span id="pattern-style-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="bg-color">Color fondo</label>
+                    <input type="color" id="bg-color" />
+                    <span id="bg-color-val" class="control-value"></span>
+                </div>
+                <div>
+                    <button id="pattern-reset" class="button">Restablecer</button>
+                </div>
+                <small class="control-note">Patrón geométrico sobre el fondo, debajo de las estrellas.</small>
             </div>
         </div>
     </div>
