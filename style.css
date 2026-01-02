@@ -369,6 +369,16 @@ img { max-width: 100%; height: auto; }
     opacity: 1;
 }
 
+#smoke-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* Por debajo de las estrellas y el patrón */
+    pointer-events: none;
+}
+
 .pattern-controls {
     color: #fff;
     padding: clamp(1vmin, 2vw, 1.2vmin);
@@ -383,20 +393,48 @@ img { max-width: 100%; height: auto; }
     letter-spacing: 0.02rem;
 }
 .pattern-controls h3{ margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #8fe7ff; }
-.pattern-controls select, .pattern-controls input[type=color] { width: 100%; height: 2.2rem; padding: 0.2rem; box-sizing: border-box; background: rgba(255,255,255,0.98); border-radius: 0.4rem; border: none; font-family: 'Press Start 2P', cursive; font-size: 0.75rem; }
-.pattern-controls input[type=color] { padding: 0; height: 2.2rem; }
+.pattern-controls select, .pattern-controls input[type=color], .bg-controls input[type=color] { width: 100%; height: 2.2rem; padding: 0.2rem; box-sizing: border-box; background: rgba(255,255,255,0.98); border-radius: 0.4rem; border: none; font-family: 'Press Start 2P', cursive; font-size: 0.75rem; }
+.pattern-controls input[type=color], .bg-controls input[type=color] { padding: 0; height: 2.2rem; }
 
-/* Canvas para el modo psychedelic (usa WebGL) */
-#psy-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3; /* encima de todo el contenido */
-    pointer-events: none;
-    mix-blend-mode: screen;
-    opacity: 1;
-    display: none; /* se muestra sólo en modo psychedelic */
+.bg-controls {
+    color: #fff;
+    padding: clamp(1vmin, 2vw, 1.2vmin);
+    margin-top: clamp(3.6vmin, 6vw, 3.2rem); /* baja el panel para que no lo pise el toggle */
+    background: rgba(0,0,0,0.25);
+    border-radius: 0.6vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.75rem;
+    letter-spacing: 0.02rem;
+}
+
+.bg-controls h3{
+    margin: 0 0 0.4rem 0;
+    font-size: 0.85rem;
+    color: #ffd36b;
+}
+
+/* Panel de controles del humo */
+.smoke-controls {
+    color: #fff;
+    padding: clamp(1vmin, 2vw, 1.2vmin);
+    margin-top: 0.6rem;
+    background: rgba(0,0,0,0.25);
+    border-radius: 0.6vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.75rem;
+    letter-spacing: 0.02rem;
+}
+
+.smoke-controls h3{
+    margin: 0 0 0.4rem 0;
+    font-size: 0.85rem;
+    color: #b3d6ff;
 }
 
 /* Aseguramos que el contenido quede por encima del canvas (en general) */
@@ -409,9 +447,9 @@ img { max-width: 100%; height: auto; }
 .star-controls {
     color: #fff;
     padding: clamp(1vmin, 2vw, 1.2vmin);
-    margin-top: clamp(3.6vmin, 6vw, 3.2rem); /* baja el panel para que no lo pise el toggle */
     background: rgba(0,0,0,0.35);
     border-radius: 0.6vmin;
+    margin-top: 0.6rem;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
@@ -443,4 +481,5 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 600px) {
     #stars-canvas { opacity: 0.9; }
     .star-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(4.5vmin, 8vw, 3rem); }
-}  
+    .smoke-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(1.6vmin, 3vw, 1rem); }
+}
