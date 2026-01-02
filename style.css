@@ -115,16 +115,18 @@ body {
     align-items:center;
     justify-content:center;
     height: auto;
-    max-height: 8vmin; /* reducido para escritorio */
-    margin-top: 5vmin;
+    max-height: 10vmin; /* reducido para escritorio */
+    margin-top: 10vmin;
 }
 
 .title-logo img {
-    max-height: 25vh;
+    max-height: 30vh;
     width: auto;
-    height: auto;
+    height: 30vh;
     display:block;
-    object-fit: contain; /* Asegura que no se recorte ni estire */
+    object-fit: fill; /* Asegura que no se recorte ni estire */
+    /* Aplicamos la sombra aquí usando filter (unidades relativas) */
+    filter: drop-shadow(0 1.2vmin 1vmin rgba(0,0,0,0.5));
 }   
 
 .deck-container {
