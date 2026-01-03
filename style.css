@@ -12,6 +12,7 @@ body {
     width: 100vw;
     display: flex;
     flex-direction: row;
+    touch-action: pan-y pan-x; /* Permitir scroll en elementos internos */
 }  
 
 .c-1 {
@@ -54,6 +55,7 @@ body {
         max-width: none;
         height: 100vh;
         min-height: 100vh;
+        max-height: 100vh; /* Limitar altura para permitir scroll */
         border-left: none;
         border-right: none;
         border-top: goldenrod 0.45vmin dashed;
@@ -63,6 +65,22 @@ body {
         transform: translateZ(0); /* crea un nuevo contexto y ayuda con el apilamiento */
         pointer-events: auto;
         background: rgba(10, 3, 43, 0.9); /* un poco más opaco en móvil */
+        overflow-y: scroll; /* Forzar scroll vertical siempre visible */
+        overflow-x: hidden; /* Evitar scroll horizontal */
+        -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        overscroll-behavior: contain; /* Evitar que el scroll se propague al body */
+        touch-action: pan-y; /* Permitir solo scroll vertical táctil */
+    }
+
+    /* Asegurar que main y pres-container no bloqueen el panel */
+    .main {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .pres-container {
+        pointer-events: none;
+        z-index: 1;
     }
 
     .toggle-button {
@@ -73,6 +91,11 @@ body {
     .mute-button {
         width: clamp(10vmin, 20vw, 10vmin) !important;
         height: clamp(10vmin, 20vw, 10vmin) !important;
+    }
+
+    /* Logo más pequeño en orientación vertical */
+    .title-logo img {
+        max-height: 15vh;
     }
 }
 
@@ -128,9 +151,9 @@ body {
 .title-logo img {
     max-height: 30vh;
     width: auto;
-    height: 30vh;
+    height: auto;
     display:block;
-    object-fit: fill; /* Asegura que no se recorte ni estire */
+    object-fit: contain; /* Mantiene la proporción sin deformar */
     /* Aplicamos la sombra aquí usando filter (unidades relativas) */
     filter: drop-shadow(0 1.2vmin 1vmin rgba(0,0,0,0.5));
 }   

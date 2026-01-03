@@ -321,18 +321,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Control del botón de mostrar/ocultar info del canal
         toggleChanelInfoBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const deckEl = document.getElementById('deck-container');
+            const presEl = document.getElementById('pres-container');
             const isOpen = window.getComputedStyle(chanelInfo).display !== 'none';
             const isPortrait = window.matchMedia('(orientation: portrait)').matches;
 
             if (isOpen) {
                 // Cerrar siempre el panel; quitar la clase si estaba aplicada
                 chanelInfo.style.display = 'none';
-                if (deckEl) deckEl.classList.remove('hidden-by-panel');
+                if (presEl) presEl.classList.remove('hidden-by-panel');
             } else {
                 // Abrir el panel. Solo ocultar el mazo si estamos en portrait
                 chanelInfo.style.display = 'block';
-                if (deckEl && isPortrait) deckEl.classList.add('hidden-by-panel');
+                if (presEl && isPortrait) presEl.classList.add('hidden-by-panel');
             }
         });
 
