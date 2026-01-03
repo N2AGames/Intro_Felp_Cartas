@@ -362,30 +362,10 @@ img { max-width: 100%; height: auto; }
 .back-content { overflow: hidden; }
 .back-content img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }
 
-.mute-button {
-    position: fixed;
-    top: clamp(0.8vmin, 2.5vw, 1.6vmin);
-    right: clamp(0.8vmin, 2.5vw, 1.6vmin);
-    width: clamp(5vmin, 8vw, 4vmin);
-    height: clamp(5vmin, 8vw, 4vmin);
-    background: #555555;
-    border: 0.45vmin solid #fff;
-    border-radius: 1vmin;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 10000000 !important; /* Muy alto para estar por encima de todo */
-    font-family: 'Press Start 2P', cursive;
-    font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
-    image-rendering: pixelated;
-}
-
+.mute-button,
 .toggle-button {
     position: fixed;
     top: clamp(0.8vmin, 2.5vw, 1.6vmin);
-    left: clamp(2vmin, 4vw, 50vmin);
     width: clamp(5vmin, 8vw, 4vmin);
     height: clamp(5vmin, 8vw, 4vmin);
     background: #555555;
@@ -396,10 +376,43 @@ img { max-width: 100%; height: auto; }
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 10000000 !important; /* Muy alto para estar por encima de todo */
+    z-index: 10000000 !important;
     font-family: 'Press Start 2P', cursive;
     font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
     image-rendering: pixelated;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+.toggle-button {
+    left: clamp(2vmin, 4vw, 50vmin);
+}
+
+.mute-button {
+    right: clamp(0.8vmin, 2.5vw, 1.6vmin);
+}
+
+/* Estado activo para ambos botones */
+.mute-button.active,
+.toggle-button.active {
+    background: #2a7d3f;
+    border-color: #4caf50;
+    box-shadow: 0 0 1vmin #4caf50, 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.5);
+}
+
+/* Estado hover */
+.mute-button:hover,
+.toggle-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0.6vmin 1.2vmin rgba(0, 0, 0, 0.6);
+}
+
+/* Estado presionado */
+.mute-button:active,
+.toggle-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0.2vmin 0.4vmin rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 800px) {

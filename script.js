@@ -275,7 +275,6 @@ function attachPatternControls(){
 document.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('bg-music');
     const muteBtn = document.getElementById('mute-control');
-    const muteIcon = document.getElementById('mute-icon');
 
     const toggleChanelInfoBtn = document.getElementById('toggle-chanel-info');
     const chanelInfo = document.querySelector('.chanel-info');
@@ -287,15 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Función para intentar reproducir automáticamente
         const startMusic = () => {
             music.play().then(() => {
-                muteIcon.innerText = "🔊";
-                muteBtn.style.opacity = "1";
+                muteBtn.innerText = "🔊";
+                muteBtn.classList.add('active');
                 // Una vez que suena, quitamos los escuchadores globales de inicio
                 window.removeEventListener('click', startMusic);
                 window.removeEventListener('keydown', startMusic);
             }).catch(err => {
                 console.log("Reproducción automática bloqueada. Esperando interacción.");
-                muteIcon.innerText = "🔇";
-                muteBtn.style.opacity = "0.5";
+                muteBtn.innerText = "🔇";
+                muteBtn.classList.remove('active');
             });
         };
 
@@ -310,11 +309,16 @@ document.addEventListener('DOMContentLoaded', () => {
         muteBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // Evita conflictos con el escuchador de ventana
             if (music.paused) {
-                startMusic();
+                music.play().then(() => {
+                    muteBtn.innerText = "🔊";
+                    muteBtn.classList.add('active');
+                }).catch(err => {
+                    console.log("No se pudo reproducir la música.");
+                });
             } else {
                 music.pause();
-                muteIcon.innerText = "🔇";
-                muteBtn.style.opacity = "0.5";
+                muteBtn.innerText = "🔇";
+                muteBtn.classList.remove('active');
             }
         });
 
@@ -328,10 +332,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isOpen) {
                 // Cerrar siempre el panel; quitar la clase si estaba aplicada
                 chanelInfo.style.display = 'none';
+                toggleChanelInfoBtn.classList.remove('active');
                 if (presEl) presEl.classList.remove('hidden-by-panel');
             } else {
                 // Abrir el panel. Solo ocultar el mazo si estamos en portrait
                 chanelInfo.style.display = 'block';
+                toggleChanelInfoBtn.classList.add('active');
                 if (presEl && isPortrait) presEl.classList.add('hidden-by-panel');
             }
         });
