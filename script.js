@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chanelInfo = document.querySelector('.chanel-info');
 
     if (music) {
-        music.volume = 0.2;
+        music.volume = 0.05; // Volumen inicial bajo
         music.currentTime = 0; // Asegura que empiece en el segundo 0
 
         // Función para intentar reproducir automáticamente
