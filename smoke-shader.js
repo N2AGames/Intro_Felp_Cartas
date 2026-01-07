@@ -1,11 +1,16 @@
-// --------- Smoke background (canvas + particles) ---------
-(function(){
+function initSmokeShader() {
     // --- CONFIGURACIÓN DEL HUMO ---
-    let smokeSettings = {
+    let defaults = {
         active: true,
         speed: 0.15,
         opacity: 0.5
     };
+
+    let smokeSettings = getFromSessionStorage('smokeSettings');
+    if (!smokeSettings) {
+        smokeSettings = defaults;
+    }
+    saveToSessionStorage('smokeSettings', smokeSettings);
 
     // Referencias y listeners
     const smokeCanvas = document.getElementById('smoke-canvas');
@@ -18,23 +23,33 @@
     const sOpacityVal = document.getElementById('smoke-opacity-val');
 
     // Inicializar valores en UI
+    sToggle.checked = smokeSettings.active;
+    sSpeed.value = smokeSettings.speed;
+    sOpacity.value = smokeSettings.opacity;
+    
     sSpeedVal.innerText = sSpeed.value;
     sOpacityVal.innerText = sOpacity.value;
 
-    sToggle.onchange = (e) => smokeSettings.active = e.target.checked;
+    sToggle.onchange = (e) => {
+        smokeSettings.active = e.target.checked;
+        saveToSessionStorage('smokeSettings', smokeSettings);
+    };
     sSpeed.oninput = (e) => {
         smokeSettings.speed = parseFloat(e.target.value);
         sSpeedVal.innerText = e.target.value;
+        saveToSessionStorage('smokeSettings', smokeSettings);
     };
     sOpacity.oninput = (e) => {
         smokeSettings.opacity = parseFloat(e.target.value);
         sOpacityVal.innerText = e.target.value;
+        saveToSessionStorage('smokeSettings', smokeSettings);
     };
     document.getElementById('smoke-reset').onclick = () => {
         smokeSettings = { active: true, speed: 0.15, opacity: 0.5 };
         sToggle.checked = true;
         sSpeed.value = 0.15; sSpeedVal.innerText = 0.15;
         sOpacity.value = 0.5; sOpacityVal.innerText = 0.5;
+        saveToSessionStorage('smokeSettings', smokeSettings);
     };
 
     // --- SHADERS ---
@@ -114,4 +129,4 @@
         requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
-})();
+}

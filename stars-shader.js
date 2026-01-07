@@ -1,5 +1,5 @@
 // --------- Stars background (canvas + particles) ---------
-(function(){
+function initStarsShader() {
     const canvas = document.getElementById('stars-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -15,7 +15,13 @@
         hue: 40
     };
 
-    const opts = Object.assign({}, defaults);
+    var starsConfig = getFromSessionStorage('starsSettings');
+    if (!starsConfig) {
+        starsConfig = defaults;
+    }
+    saveToSessionStorage('starsSettings', starsConfig);
+
+    const opts = Object.assign({}, starsConfig);
     let stars = [];
     let raf = null;
     let startTime = performance.now();
@@ -110,6 +116,10 @@
         if ('twinkle' in o) opts.twinkle = Math.max(0.01, Math.min(5, o.twinkle));
         if ('brightness' in o) opts.brightness = Math.max(0, Math.min(2, o.brightness));
         if ('hue' in o) opts.hue = ((o.hue % 360) + 360) % 360;
+
+        // Guardar configuración en sessionStorage
+        starsConfig = Object.assign({}, opts);
+        saveToSessionStorage('starsSettings', starsConfig);
     }
 
     function getOptions(){ return Object.assign({}, opts); }
@@ -130,13 +140,21 @@
         if (!countEl) return;
 
         // init UI
+        toggle.checked = starsConfig.enabled;
+        if(starsConfig.enabled) start(); else stop();
         countEl.value = opts.count; countVal.innerText = opts.count;
         sizeEl.value = opts.size; sizeVal.innerText = opts.size;
         twinkleEl.value = opts.twinkle; twinkleVal.innerText = parseFloat(opts.twinkle).toFixed(2);
         brightEl.value = opts.brightness; brightVal.innerText = parseFloat(opts.brightness).toFixed(2);
         hueEl.value = opts.hue; hueVal.innerText = opts.hue;
 
-        toggle.addEventListener('change', (e)=>{ if (e.target.checked) start(); else stop(); });
+        toggle.addEventListener('change', (e)=>{ 
+            if (e.target.checked) start(); else stop();
+
+            // Guardar estado en sessionStorage
+            starsConfig.enabled = e.target.checked;
+            saveToSessionStorage('starsSettings', starsConfig);
+        });
         countEl.addEventListener('input', (e)=>{ const v = parseInt(e.target.value,10); countVal.innerText = v; setOptions({count: v}); });
         sizeEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); sizeVal.innerText = v; setOptions({size: v}); });
         twinkleEl.addEventListener('input', (e)=>{ const v = parseFloat(e.target.value); twinkleVal.innerText = v.toFixed(2); setOptions({twinkle: v}); });
@@ -150,4 +168,4 @@
 
     // Expose API
     window.startStars = start; window.stopStars = stop; window.setStarOptions = setOptions; window.getStarOptions = getOptions; window.stars = { start, stop, setOptions, getOptions };
-})();
+}

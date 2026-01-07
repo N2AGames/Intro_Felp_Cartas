@@ -47,16 +47,23 @@ function attachPatternControls(){
     if (!toggle) return;
 
     const defaults = { scale: 10, opacity: 0.5, enabled: false, style: 'diagonal' };
-    let currentStyle = defaults.style;
+
+    // load from sessionStorage
+    var sessionBgPattern = getFromSessionStorage('bgPatternSettings');
+    if (!sessionBgPattern) {
+        sessionBgPattern = defaults;
+    }
+    saveToSessionStorage('bgPatternSettings', sessionBgPattern);
+    let currentStyle = sessionBgPattern.style;
 
     // init UI values
-    scaleEl.value = defaults.scale;
-    opacityEl.value = defaults.opacity; opacityVal.innerText = parseFloat(defaults.opacity).toFixed(2);
-    toggle.checked = defaults.enabled;
+    scaleEl.value = sessionBgPattern.scale;
+    opacityEl.value = sessionBgPattern.opacity; opacityVal.innerText = parseFloat(sessionBgPattern.opacity).toFixed(2);
+    toggle.checked = sessionBgPattern.enabled;
     
     // Marcar el patrón activo por defecto
     patternBtns.forEach(btn => {
-        if (btn.dataset.pattern === defaults.style) {
+        if (btn.dataset.pattern === sessionBgPattern.style) {
             btn.classList.add('active');
         }
         
@@ -67,14 +74,36 @@ function attachPatternControls(){
             e.target.classList.add('active');
             // Actualizar patrón
             currentStyle = e.target.dataset.pattern;
+
+            // Guardar en sessionStorage
+            sessionBgPattern.style = currentStyle;
+            saveToSessionStorage('bgPatternSettings', sessionBgPattern);
+
             updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff');
         });
     });
 
     // listeners
-    toggle.addEventListener('change', (e)=>{ updatePatternLayer(e.target.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff'); });
-    scaleEl.addEventListener('input', (e)=>{ scaleVal.innerText = e.target.value; updatePatternLayer(toggle.checked, parseInt(e.target.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff'); });
-    opacityEl.addEventListener('input', (e)=>{ opacityVal.innerText = parseFloat(e.target.value).toFixed(2); updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(e.target.value), currentStyle, '#ffffff'); });
+    toggle.addEventListener('change', (e)=>{
+        updatePatternLayer(e.target.checked, parseInt(scaleEl.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff');
+        // Guardar en sessionStorage
+        sessionBgPattern.enabled = e.target.checked;
+        saveToSessionStorage('bgPatternSettings', sessionBgPattern);
+    });
+    scaleEl.addEventListener('input', (e)=>{ 
+        scaleVal.innerText = e.target.value;
+        updatePatternLayer(toggle.checked, parseInt(e.target.value,10), parseFloat(opacityEl.value), currentStyle, '#ffffff');
+        // Guardar en sessionStorage
+        sessionBgPattern.scale = parseInt(e.target.value,10);
+        saveToSessionStorage('bgPatternSettings', sessionBgPattern);
+    });
+    opacityEl.addEventListener('input', (e)=>{ 
+        opacityVal.innerText = parseFloat(e.target.value).toFixed(2); 
+        updatePatternLayer(toggle.checked, parseInt(scaleEl.value,10), parseFloat(e.target.value), currentStyle, '#ffffff'); 
+        // Guardar en sessionStorage
+        sessionBgPattern.opacity = parseFloat(e.target.value);
+        saveToSessionStorage('bgPatternSettings', sessionBgPattern);
+    });
     reset.addEventListener('click', ()=>{ 
         scaleEl.value = defaults.scale; 
         opacityEl.value = defaults.opacity; 
@@ -88,7 +117,10 @@ function attachPatternControls(){
                 btn.classList.add('active');
             }
         });
-        updatePatternLayer(defaults.enabled, defaults.scale, defaults.opacity, defaults.style, '#ffffff'); 
+        updatePatternLayer(defaults.enabled, defaults.scale, defaults.opacity, defaults.style, '#ffffff');
+        // Guardar en sessionStorage
+        sessionBgPattern = { ...defaults };
+        saveToSessionStorage('bgPatternSettings', sessionBgPattern);
     });
 
     // init

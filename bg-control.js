@@ -12,8 +12,14 @@ function attachBgControls(){
     if (colorBtns.length === 0) return;
     
     const computedBg = window.getComputedStyle(document.body).backgroundColor;
-    const defaultColor = rgbToHex(computedBg);
+    const sessionBg = getFromSessionStorage('bgColor');
+    var defaultColor = rgbToHex(computedBg);
+    if (sessionBg) {
+        defaultColor = sessionBg;
+    }
+
     document.body.style.backgroundColor = defaultColor;
+    saveToSessionStorage('bgColor', defaultColor);
     
     // Marcar el color activo por defecto
     colorBtns.forEach(btn => {
@@ -28,6 +34,8 @@ function attachBgControls(){
             e.target.classList.add('active');
             // Cambiar color de fondo
             document.body.style.backgroundColor = e.target.dataset.color;
+            // Almacenao la propiedad en sesión
+            saveToSessionStorage('bgColor', e.target.dataset.color);
         });
     });
 }
