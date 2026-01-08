@@ -7,14 +7,26 @@ class BackgroundGenerator {
         this.backgroundColor = '';
         this.patternSize = 150;
         this.maxPokemonId = 1025; // Total de pokémons disponibles
+        this.loadedImages = []; // Almacenar imágenes cargadas para redibujado rápido
+        
+        // Paleta de colores pastel
+        this.pastelColors = [
+            '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
+            '#E0BBE4', '#FFDFD3', '#D4F1F4', '#FFC8DD', '#C8E7ED',
+            '#E7C6FF', '#C7CEEA', '#B8E0D2', '#FFD6BA', '#EAC4D5',
+            '#D6E9CA', '#F7E7CE', '#C9E4E7', '#FADCE7', '#FFE5EC',
+            '#FFF5E4', '#E8F3D6', '#D5E1DF', '#FFDEE9', '#E5D9F2',
+            '#F8E8EE', '#FFF0F5', '#E6F3FF', '#FFEEF8', '#F0FFF0'
+        ];
         
         // Configuración del usuario
         this.config = {
             patternType: 'grid',
             bgType: 'solid',
-            bgColor: '#4ECDC4',
-            gradientColor1: '#4ECDC4',
-            gradientColor2: '#45B7D1',
+            bgColor: null,
+            gradientColor1: null,
+            gradientColor2: null,
+            userSelectedColor: false,
             sizeMode: 'fixed',
             imageSize: 150,
             sizeMin: 100,
@@ -26,7 +38,11 @@ class BackgroundGenerator {
             allowShiny: false,
             generations: [1, 2, 3, 4, 5, 6, 7, 8, 9],
             canvasWidth: 1920,
-            canvasHeight: 1080
+            canvasHeight: 1080,
+            enableBorder: true,
+            borderWidth: 3,
+            borderColorMode: 'black',
+            borderOpacity: 90
         };
         
         this.init();
@@ -35,6 +51,7 @@ class BackgroundGenerator {
     init() {
         this.createCanvas();
         this.setupButtons();
+        this.setupColorPalettes();
         this.setupMenu();
         this.generateBackground();
     }
@@ -90,56 +107,171 @@ class BackgroundGenerator {
         });
     }
 
+    setupColorPalettes() {
+        // Crear paleta para color sólido
+        const solidPalette = document.getElementById('solid-color-palette');
+        this.pastelColors.forEach(color => {
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'color-option';
+            colorBtn.style.backgroundColor = color;
+            colorBtn.dataset.color = color;
+            colorBtn.addEventListener('click', () => {
+                // Deseleccionar todos
+                solidPalette.querySelectorAll('.color-option').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                // Seleccionar este
+                colorBtn.classList.add('selected');
+                this.config.bgColor = color;
+                this.config.userSelectedColor = true;
+                // Actualizar solo el fondo en tiempo real
+                this.updateBackgroundOnly();
+            });
+            solidPalette.appendChild(colorBtn);
+        });
+
+        // Crear paleta para gradient color 1
+        const gradient1Palette = document.getElementById('gradient-color1-palette');
+        this.pastelColors.forEach(color => {
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'color-option';
+            colorBtn.style.backgroundColor = color;
+            colorBtn.dataset.color = color;
+            colorBtn.addEventListener('click', () => {
+                gradient1Palette.querySelectorAll('.color-option').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                colorBtn.classList.add('selected');
+                this.config.gradientColor1 = color;
+                this.config.userSelectedColor = true;
+                // Actualizar solo el fondo en tiempo real
+                this.updateBackgroundOnly();
+            });
+            gradient1Palette.appendChild(colorBtn);
+        });
+
+        // Crear paleta para gradient color 2
+        const gradient2Palette = document.getElementById('gradient-color2-palette');
+        this.pastelColors.forEach(color => {
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'color-option';
+            colorBtn.style.backgroundColor = color;
+            colorBtn.dataset.color = color;
+            colorBtn.addEventListener('click', () => {
+                gradient2Palette.querySelectorAll('.color-option').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                colorBtn.classList.add('selected');
+                this.config.gradientColor2 = color;
+                this.config.userSelectedColor = true;
+                // Actualizar solo el fondo en tiempo real
+                this.updateBackgroundOnly();
+            });
+            gradient2Palette.appendChild(colorBtn);
+        });
+    }
+
     setupMenu() {
         // Inicializar acordeones
         this.setupAccordions();
         
         // === FONDO ===
         document.getElementById('bg-type').addEventListener('change', (e) => {
+            this.config.bgType = e.target.value;
             const isSolid = e.target.value === 'solid';
             document.getElementById('solid-color-section').classList.toggle('hidden', !isSolid);
             document.getElementById('gradient-section').classList.toggle('hidden', isSolid);
-        });
-
-        document.getElementById('random-color').addEventListener('click', () => {
-            const randomColor = this.getRandomColor();
-            document.getElementById('bg-color').value = randomColor;
-        });
-
-        document.getElementById('random-gradient').addEventListener('click', () => {
-            document.getElementById('gradient-color1').value = this.getRandomColor();
-            document.getElementById('gradient-color2').value = this.getRandomColor();
+            // Actualizar solo el fondo en tiempo real
+            this.updateBackgroundOnly();
         });
 
         // === PATRÓN ===
+        document.getElementById('pattern-type').addEventListener('change', (e) => {
+            this.config.patternType = e.target.value;
+            this.redrawPattern();
+        });
+
         document.getElementById('size-mode').addEventListener('change', (e) => {
+            this.config.sizeMode = e.target.value;
             const isFixed = e.target.value === 'fixed';
             document.getElementById('fixed-size-section').classList.toggle('hidden', !isFixed);
             document.getElementById('range-size-section').classList.toggle('hidden', isFixed);
+            this.updatePatternSize();
+            this.redrawPattern();
         });
 
         const sizeInput = document.getElementById('image-size');
         const sizeValue = document.getElementById('size-value');
         sizeInput.addEventListener('input', (e) => {
             sizeValue.textContent = e.target.value;
+            this.config.imageSize = parseInt(e.target.value);
+            this.updatePatternSize();
+            this.redrawPattern();
         });
 
         const sizeMinInput = document.getElementById('size-min');
         const sizeMinValue = document.getElementById('size-min-value');
         sizeMinInput.addEventListener('input', (e) => {
             sizeMinValue.textContent = e.target.value;
+            this.config.sizeMin = parseInt(e.target.value);
+            this.updatePatternSize();
+            this.redrawPattern();
         });
 
         const sizeMaxInput = document.getElementById('size-max');
         const sizeMaxValue = document.getElementById('size-max-value');
         sizeMaxInput.addEventListener('input', (e) => {
             sizeMaxValue.textContent = e.target.value;
+            this.config.sizeMax = parseInt(e.target.value);
+            this.updatePatternSize();
+            this.redrawPattern();
         });
 
         const densityInput = document.getElementById('pokemon-density');
         const densityValue = document.getElementById('density-value');
         densityInput.addEventListener('input', (e) => {
             densityValue.textContent = parseFloat(e.target.value).toFixed(1);
+            this.config.pokemonDensity = parseFloat(e.target.value);
+            this.updatePatternSize();
+            this.redrawPattern();
+        });
+
+        // === CONTORNO ===
+        const enableBorderCheckbox = document.getElementById('enable-border');
+        const borderSettings = document.getElementById('border-settings');
+        
+        enableBorderCheckbox.addEventListener('change', (e) => {
+            this.config.enableBorder = e.target.checked;
+            if (e.target.checked) {
+                borderSettings.style.display = 'block';
+            } else {
+                borderSettings.style.display = 'none';
+            }
+            this.redrawPattern();
+        });
+
+        const borderWidthInput = document.getElementById('border-width');
+        const borderWidthValue = document.getElementById('border-width-value');
+        borderWidthInput.addEventListener('input', (e) => {
+            borderWidthValue.textContent = parseFloat(e.target.value).toFixed(1);
+            this.config.borderWidth = parseFloat(e.target.value);
+            this.redrawPattern();
+        });
+
+        const borderColorRadios = document.querySelectorAll('input[name="border-color"]');
+        borderColorRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.config.borderColorMode = e.target.value;
+                this.redrawPattern();
+            });
+        });
+
+        const borderOpacityInput = document.getElementById('border-opacity');
+        const borderOpacityValue = document.getElementById('border-opacity-value');
+        borderOpacityInput.addEventListener('input', (e) => {
+            borderOpacityValue.textContent = e.target.value;
+            this.config.borderOpacity = parseInt(e.target.value);
+            this.redrawPattern();
         });
 
         // === POKÉMONS ===
@@ -160,12 +292,14 @@ class BackgroundGenerator {
         const widthValue = document.getElementById('width-value');
         widthInput.addEventListener('input', (e) => {
             widthValue.textContent = e.target.value;
+            this.config.canvasWidth = parseInt(e.target.value);
         });
 
         const heightInput = document.getElementById('canvas-height');
         const heightValue = document.getElementById('height-value');
         heightInput.addEventListener('input', (e) => {
             heightValue.textContent = e.target.value;
+            this.config.canvasHeight = parseInt(e.target.value);
         });
 
         // Botones de preset
@@ -174,6 +308,8 @@ class BackgroundGenerator {
             heightInput.value = 1080;
             widthValue.textContent = '1920';
             heightValue.textContent = '1080';
+            this.config.canvasWidth = 1920;
+            this.config.canvasHeight = 1080;
         });
 
         document.getElementById('preset-4k').addEventListener('click', () => {
@@ -181,6 +317,8 @@ class BackgroundGenerator {
             heightInput.value = 2160;
             widthValue.textContent = '3840';
             heightValue.textContent = '2160';
+            this.config.canvasWidth = 3840;
+            this.config.canvasHeight = 2160;
         });
 
         document.getElementById('preset-window').addEventListener('click', () => {
@@ -188,11 +326,8 @@ class BackgroundGenerator {
             heightInput.value = window.innerHeight;
             widthValue.textContent = window.innerWidth.toString();
             heightValue.textContent = window.innerHeight.toString();
-        });
-
-        // Botón aplicar configuración
-        document.getElementById('apply-settings').addEventListener('click', () => {
-            this.applySettings();
+            this.config.canvasWidth = window.innerWidth;
+            this.config.canvasHeight = window.innerHeight;
         });
     }
 
@@ -209,56 +344,46 @@ class BackgroundGenerator {
         document.querySelector('.accordion').classList.add('active');
     }
 
-    applySettings() {
-        // Fondo
-        this.config.bgType = document.getElementById('bg-type').value;
-        this.config.bgColor = document.getElementById('bg-color').value;
-        this.config.gradientColor1 = document.getElementById('gradient-color1').value;
-        this.config.gradientColor2 = document.getElementById('gradient-color2').value;
+    // Actualizar solo el color de fondo sin recargar pokémons
+    updateBackgroundOnly() {
+        if (!this.loadedImages || this.loadedImages.length === 0) {
+            return;
+        }
 
-        // Patrón
-        this.config.patternType = document.getElementById('pattern-type').value;
-        this.config.sizeMode = document.getElementById('size-mode').value;
-        this.config.imageSize = parseInt(document.getElementById('image-size').value);
-        this.config.sizeMin = parseInt(document.getElementById('size-min').value);
-        this.config.sizeMax = parseInt(document.getElementById('size-max').value);
-        this.config.pokemonDensity = parseFloat(document.getElementById('pokemon-density').value);
-        
-        // La densidad afecta el espaciado
+        // Dibujar fondo
+        if (this.config.bgType === 'solid') {
+            this.ctx.fillStyle = this.config.bgColor;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else {
+            const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+            gradient.addColorStop(0, this.config.gradientColor1);
+            gradient.addColorStop(1, this.config.gradientColor2);
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        // Redibujar patrón con las imágenes ya cargadas
+        this.drawPattern(this.loadedImages);
+    }
+
+    // Redibujar patrón con configuración actualizada
+    redrawPattern() {
+        if (!this.loadedImages || this.loadedImages.length === 0) {
+            return;
+        }
+        this.updateBackgroundOnly();
+    }
+
+    // Actualizar tamaño del patrón basado en configuración
+    updatePatternSize() {
         const baseSize = this.config.sizeMode === 'fixed' 
             ? this.config.imageSize 
             : (this.config.sizeMin + this.config.sizeMax) / 2;
         this.patternSize = baseSize / this.config.pokemonDensity;
-
-        // Pokémons
-        this.config.pokemonCount = parseInt(document.getElementById('pokemon-count').value);
-        this.config.pokemonMode = document.getElementById('pokemon-mode').value;
-        this.config.allowShiny = document.getElementById('allow-shiny').checked;
-
-        if (this.config.pokemonMode === 'manual') {
-            const names = document.getElementById('pokemon-names').value;
-            this.config.pokemonNames = names.split(',').map(n => n.trim()).filter(n => n);
-        } else {
-            // Obtener generaciones seleccionadas
-            const checkboxes = document.querySelectorAll('.gen-checkbox:checked');
-            this.config.generations = Array.from(checkboxes).map(cb => parseInt(cb.value));
-        }
-
-        // Dimensiones
-        this.config.canvasWidth = parseInt(document.getElementById('canvas-width').value);
-        this.config.canvasHeight = parseInt(document.getElementById('canvas-height').value);
-
-        this.generateBackground();
     }
 
     getRandomColor() {
-        const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
-            '#E63946', '#A8DADC', '#457B9D', '#F4A261', '#E76F51',
-            '#2A9D8F', '#E9C46A', '#F4A259', '#BC4B51', '#8ECAE6'
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
+        return this.pastelColors[Math.floor(Math.random() * this.pastelColors.length)];
     }
 
     getRandomPokemons(count = 3) {
@@ -305,6 +430,59 @@ class BackgroundGenerator {
         }
     }
 
+    drawImageWithBorder(img, x, y, size) {
+        this.ctx.save();
+        this.ctx.translate(x, y);
+
+        if (this.config.enableBorder) {
+            // Determinar color del borde
+            let invertValue = this.config.borderColorMode === 'white' ? 100 : 0;
+            
+            const borderWidth = Math.max(1, size * (this.config.borderWidth / 100));
+            const opacity = this.config.borderOpacity / 100;
+            
+            this.ctx.globalCompositeOperation = 'source-over';
+            
+            // Dibujar siluetas en 8 direcciones principales
+            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
+                const offsetX = Math.cos(angle) * borderWidth;
+                const offsetY = Math.sin(angle) * borderWidth;
+                
+                this.ctx.save();
+                
+                this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
+                this.ctx.globalAlpha = opacity;
+                
+                this.ctx.drawImage(img, -size / 2 + offsetX, -size / 2 + offsetY, size, size);
+                
+                this.ctx.restore();
+            }
+            
+            // Dibujar siluetas adicionales en las diagonales intermedias para un contorno más suave
+            for (let angle = Math.PI / 8; angle < Math.PI * 2; angle += Math.PI / 4) {
+                const offsetX = Math.cos(angle) * borderWidth;
+                const offsetY = Math.sin(angle) * borderWidth;
+                
+                this.ctx.save();
+                
+                this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
+                this.ctx.globalAlpha = opacity * 0.7;
+                
+                this.ctx.drawImage(img, -size / 2 + offsetX, -size / 2 + offsetY, size, size);
+                
+                this.ctx.restore();
+            }
+        }
+        
+        // Dibujar imagen principal sin filtros
+        this.ctx.filter = 'none';
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = 1;
+        this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        
+        this.ctx.restore();
+    }
+
     drawGridPattern(images) {
         const cols = Math.ceil(this.canvas.width / this.patternSize) + 1;
         const rows = Math.ceil(this.canvas.height / this.patternSize) + 1;
@@ -325,12 +503,9 @@ class BackgroundGenerator {
                     size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                 }
 
-                this.ctx.save();
-                this.ctx.translate(x + this.patternSize / 2 + offsetX, y + this.patternSize / 2 + offsetY);
-                
-                this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
-                
-                this.ctx.restore();
+                const centerX = x + this.patternSize / 2 + offsetX;
+                const centerY = y + this.patternSize / 2 + offsetY;
+                this.drawImageWithBorder(img, centerX, centerY, size);
             }
         }
     }
@@ -384,12 +559,7 @@ class BackgroundGenerator {
                     size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                 }
 
-                this.ctx.save();
-                this.ctx.translate(x, y);
-                
-                this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
-                
-                this.ctx.restore();
+                this.drawImageWithBorder(img, x, y, size);
             }
         }
     }
@@ -505,6 +675,16 @@ class BackgroundGenerator {
     }
 
     async renderBackground() {
+        // Generar color de fondo si no ha sido seleccionado por el usuario
+        if (!this.config.userSelectedColor) {
+            if (this.config.bgType === 'solid') {
+                this.config.bgColor = this.getRandomColor();
+            } else {
+                this.config.gradientColor1 = this.getRandomColor();
+                this.config.gradientColor2 = this.getRandomColor();
+            }
+        }
+
         // Dibujar fondo
         if (this.config.bgType === 'solid') {
             this.ctx.fillStyle = this.config.bgColor;
@@ -525,12 +705,16 @@ class BackgroundGenerator {
                 this.config.pokemonNames.map(name => loadPokemonData(name))
             );
         } else {
-            // Cargar pokémons aleatorios usando las generaciones seleccionadas
-            const promises = [];
-            for (let i = 0; i < this.config.pokemonCount; i++) {
-                promises.push(loadRandomPokemon(null, this.config.generations));
-            }
-            pokemonDataList = await Promise.all(promises);
+            // Cargar pokémons aleatorios que combinen con el color de fondo
+            const bgColor = this.config.bgType === 'solid' 
+                ? this.config.bgColor 
+                : this.config.gradientColor1;
+            
+            pokemonDataList = await getPokemonsByColor(
+                bgColor, 
+                this.config.generations, 
+                this.config.pokemonCount
+            );
         }
 
         // Filtrar pokémons que se cargaron correctamente y cargar sus imágenes
@@ -545,6 +729,9 @@ class BackgroundGenerator {
                 return this.loadImage(imageUrl);
             })
         );
+
+        // Guardar imágenes cargadas para uso posterior
+        this.loadedImages = images;
 
         // Dibujar el patrón según el tipo seleccionado
         this.drawPattern(images);

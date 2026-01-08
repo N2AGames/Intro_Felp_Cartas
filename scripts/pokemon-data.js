@@ -67,3 +67,85 @@ function displayPokemonPicture(pokemonData) {
     imgElement.src = pokemonData.sprites.front_default;
     imgElement.alt = pokemonData.name;
 }
+
+function getMatchingColors(bgColor) {
+    // Convertir hex a RGB
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calcular brillo del color
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    
+    // Determinar colores que combinan basado en el color dominante y brillo
+    const dominantChannel = Math.max(r, g, b);
+    const colorMatches = [];
+
+    // Colores complementarios y análogos según el fondo
+    if (brightness < 85) {
+        // Fondo oscuro - pokémons claros o coloridos
+        colorMatches.push('white', 'yellow', 'pink', 'green', 'blue');
+    } else if (brightness > 170) {
+        // Fondo claro - pokémons oscuros o saturados
+        colorMatches.push('black', 'brown', 'blue', 'red', 'purple', 'green');
+    } else {
+        // Fondo medio - cualquier color contrasta bien
+        if (r > g && r > b) {
+            // Dominante rojo
+            colorMatches.push('blue', 'green', 'yellow', 'white', 'pink');
+        } else if (g > r && g > b) {
+            // Dominante verde
+            colorMatches.push('red', 'blue', 'purple', 'yellow', 'pink');
+        } else if (b > r && b > g) {
+            // Dominante azul
+            colorMatches.push('red', 'yellow', 'green', 'white', 'pink');
+        } else {
+            // Neutro
+            colorMatches.push('red', 'blue', 'green', 'yellow', 'purple', 'pink');
+        }
+    }
+
+    return colorMatches;
+}
+
+async function getPokemonsByColor(bgColor, generations, count) {
+    const matchingColors = getMatchingColors(bgColor);
+    const selectedColor = matchingColors[Math.floor(Math.random() * matchingColors.length)];
+
+    try {
+        // Obtener pokémons del color seleccionado
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-color/${selectedColor}`);
+        const data = await response.json();
+        
+        // Filtrar por generaciones seleccionadas
+        const filteredPokemons = data.pokemon_species.filter(species => {
+            const id = parseInt(species.url.split('/').slice(-2, -1)[0]);
+            return generations.some(gen => {
+                const range = genRanges[gen];
+                return id >= range[0] && id <= range[1];
+            });
+        });
+
+        // Seleccionar pokémons aleatorios del color que coincide
+        const pokemonDataList = [];
+        const pokemonCount = Math.min(count, filteredPokemons.length);
+        
+        for (let i = 0; i < pokemonCount; i++) {
+            const randomPokemon = filteredPokemons[Math.floor(Math.random() * filteredPokemons.length)];
+            const id = parseInt(randomPokemon.url.split('/').slice(-2, -1)[0]);
+            const pokemonData = await loadRandomPokemon(id);
+            pokemonDataList.push(pokemonData);
+        }
+
+        return pokemonDataList;
+    } catch (error) {
+        console.error('Error al obtener pokémons por color:', error);
+        // Fallback: usar el método anterior
+        const promises = [];
+        for (let i = 0; i < count; i++) {
+            promises.push(loadRandomPokemon(null, generations));
+        }
+        return await Promise.all(promises);
+    }
+}
