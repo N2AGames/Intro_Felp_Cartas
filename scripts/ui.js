@@ -93,5 +93,23 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('orientationchange', syncDeckVisibilityWithOrientation);
     // Ejecutar una vez al inicio
     syncDeckVisibilityWithOrientation();
+
+    // Abrir generador de fondos en nueva ventana
+    const openBgGeneratorBtn = document.getElementById('open-bg-generator');
+    if (openBgGeneratorBtn) {
+        openBgGeneratorBtn.addEventListener('click', () => {
+            window.open('bg-generator.html');
+        });
+    }
+
+    // Cerrar sección del generador de fondos
+    const closeBgGeneratorBtn = document.getElementById('close-bg-generator');
+    const bgGeneratorSection = document.getElementById('bg-generator-section');
+    if (closeBgGeneratorBtn && bgGeneratorSection) {
+        closeBgGeneratorBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            bgGeneratorSection.style.display = 'none';
+        });
+    }
 });
 //#endregion

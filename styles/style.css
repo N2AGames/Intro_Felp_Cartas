@@ -45,6 +45,38 @@ body {
     pointer-events: auto;
 }
 
+/* Botón de cerrar panel */
+.close-panel-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    background: rgba(255, 107, 107, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.close-panel-btn:hover {
+    background: rgba(255, 60, 60, 1);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.close-panel-btn:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
 @media (orientation: portrait) {
     /* En pantallas verticales mostramos el panel como pantalla completa */
     .chanel-info {
@@ -605,4 +637,97 @@ img { max-width: 100%; height: auto; }
     #stars-canvas { opacity: 0.9; }
     .star-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(4.5vmin, 8vw, 3rem); }
     .control-panel { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(1.6vmin, 3vw, 1rem); }
+}
+
+/* Botón de generador de fondos */
+.bg-generator-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(78, 205, 196, 0.1);
+    border-radius: 8px;
+    border: 2px solid rgba(78, 205, 196, 0.3);
+    text-align: center;
+    position: relative;
+}
+
+.close-bg-generator-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 107, 107, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    margin: 0;
+}
+
+.close-bg-generator-btn:hover {
+    background: rgba(255, 60, 60, 1);
+    transform: rotate(90deg) scale(1.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.close-bg-generator-btn:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.bg-generator-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.bg-generator-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.bg-generator-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.beta-badge {
+    background: #ff6b6b;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bg-generator-note {
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-style: italic;
 }
