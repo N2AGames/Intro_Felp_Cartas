@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="styles/bg-generator.css">
 </head>
 <body>
+    <!-- Spinner de carga -->
+    <div id="loading-spinner" class="spinner-overlay">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <p class="spinner-text">Generando fondo...</p>
+        </div>
+    </div>
+
     <button class="toggle-menu-btn" id="toggle-menu">☰ Configuración</button>
 
     <div class="side-menu" id="side-menu">
@@ -50,7 +58,11 @@
                     <label for="pattern-type">Tipo de Patrón:</label>
                     <select id="pattern-type">
                         <option value="grid">Cuadrícula</option>
-                        <option value="hexagon">Hexágonos</option>
+                        <option value="hexagon" selected>Hexágonos</option>
+                        <option value="brick">Ladrillos</option>
+                        <option value="diagonal">Diagonal</option>
+                        <option value="wave">Ondas</option>
+                        <option value="diamond">Diamantes</option>
                     </select>
                 </div>
                 <div class="menu-section">
@@ -71,7 +83,7 @@
                     <input type="range" id="size-max" min="100" max="400" value="200">
                 </div>
                 <div class="menu-section">
-                    <label for="pokemon-density">Densidad: <span id="density-value">1.0</span></label>
+                    <label for="pokemon-density">Densidad: <span id="density-value">0.5</span></label>
                     <input type="range" id="pokemon-density" min="0.5" max="1.0" step="0.1" value="0.5">
                 </div>
             </div>
@@ -97,11 +109,11 @@
                     <label>Color del Contorno:</label>
                     <div style="margin: 8px 0;">
                         <label style="margin-right: 15px;">
-                            <input type="radio" name="border-color" value="black" checked>
+                            <input type="radio" name="border-color" value="black">
                             Negro
                         </label>
                         <label>
-                            <input type="radio" name="border-color" value="white">
+                            <input type="radio" name="border-color" value="white" checked>
                             Blanco
                         </label>
                     </div>
@@ -119,7 +131,7 @@
                 <span class="accordion-icon">▼</span>
             </button>
             <div class="accordion-content">
-                <div class="menu-section">
+                <div class="menu-section" id="pokemon-count-section">
                     <label for="pokemon-count">Pokémons Diferentes: <span id="pokemon-count-value">3</span></label>
                     <input type="range" id="pokemon-count" min="1" max="10" value="3">
                 </div>
@@ -131,21 +143,34 @@
                     </select>
                 </div>
                 <div class="menu-section" id="manual-pokemon-section" style="display: none;">
-                    <label for="pokemon-names">Nombres (separados por coma):</label>
-                    <textarea id="pokemon-names" rows="3" placeholder="pikachu, charizard, mewtwo"></textarea>
+                    <label>Buscar Pokémon:</label>
+                    <div class="pokemon-search-wrapper">
+                        <div class="pokemon-search-container">
+                            <input type="text" id="pokemon-search" placeholder="Buscar por nombre..." autocomplete="off">
+                            <button id="add-pokemon-btn" class="small-btn">Añadir</button>
+                        </div>
+                        <div id="pokemon-suggestions-dropdown" class="suggestions-dropdown"></div>
+                    </div>
+                    <div id="selected-pokemon-list" class="pokemon-tag-list"></div>
                 </div>
                 <div class="menu-section" id="random-pokemon-section">
                     <label>Generaciones:</label>
-                    <div class="checkbox-grid">
-                        <label><input type="checkbox" class="gen-checkbox" value="1" checked> Gen 1</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="2" checked> Gen 2</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="3" checked> Gen 3</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="4" checked> Gen 4</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="5" checked> Gen 5</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="6" checked> Gen 6</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="7" checked> Gen 7</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="8" checked> Gen 8</label>
-                        <label><input type="checkbox" class="gen-checkbox" value="9" checked> Gen 9</label>
+                    <div class="gen-quick-actions">
+                        <button class="gen-action-btn" data-action="all">Todas</button>
+                        <button class="gen-action-btn" data-action="none">Ninguna</button>
+                        <button class="gen-action-btn" data-action="classic">Clásicas (1-4)</button>
+                        <button class="gen-action-btn" data-action="modern">Modernas (5-9)</button>
+                    </div>
+                    <div class="gen-toggle-grid">
+                        <button class="gen-toggle-btn active" data-gen="1">1</button>
+                        <button class="gen-toggle-btn active" data-gen="2">2</button>
+                        <button class="gen-toggle-btn active" data-gen="3">3</button>
+                        <button class="gen-toggle-btn active" data-gen="4">4</button>
+                        <button class="gen-toggle-btn active" data-gen="5">5</button>
+                        <button class="gen-toggle-btn active" data-gen="6">6</button>
+                        <button class="gen-toggle-btn active" data-gen="7">7</button>
+                        <button class="gen-toggle-btn active" data-gen="8">8</button>
+                        <button class="gen-toggle-btn active" data-gen="9">9</button>
                     </div>
                 </div>
                 <div class="menu-section">

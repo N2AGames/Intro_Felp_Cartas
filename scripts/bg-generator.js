@@ -8,6 +8,8 @@ class BackgroundGenerator {
         this.patternSize = 150;
         this.maxPokemonId = 1025; // Total de pokémons disponibles
         this.loadedImages = []; // Almacenar imágenes cargadas para redibujado rápido
+        this.debounceTimeout = null; // Para optimizar el rendimiento
+        this.pendingPokemonUpdate = false; // Indica si hay cambios pendientes de Pokémon
         
         // Paleta de colores pastel
         this.pastelColors = [
@@ -21,7 +23,7 @@ class BackgroundGenerator {
         
         // Configuración del usuario
         this.config = {
-            patternType: 'grid',
+            patternType: 'hexagon',
             bgType: 'solid',
             bgColor: null,
             gradientColor1: null,
@@ -35,15 +37,18 @@ class BackgroundGenerator {
             pokemonCount: 3,
             pokemonMode: 'random',
             pokemonNames: [],
+            selectedPokemonList: [], // Nueva lista para los Pokémon seleccionados manualmente
             allowShiny: false,
             generations: [1, 2, 3, 4, 5, 6, 7, 8, 9],
             canvasWidth: 1920,
             canvasHeight: 1080,
             enableBorder: true,
             borderWidth: 3,
-            borderColorMode: 'black',
+            borderColorMode: 'white',
             borderOpacity: 90
         };
+        
+        this.pokemonNameList = []; // Lista de nombres de Pokémon para autocompletado
         
         this.init();
     }
@@ -53,6 +58,7 @@ class BackgroundGenerator {
         this.setupButtons();
         this.setupColorPalettes();
         this.setupMenu();
+        this.loadPokemonNameList();
         this.generateBackground();
     }
 
@@ -206,7 +212,7 @@ class BackgroundGenerator {
             sizeValue.textContent = e.target.value;
             this.config.imageSize = parseInt(e.target.value);
             this.updatePatternSize();
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         const sizeMinInput = document.getElementById('size-min');
@@ -215,7 +221,7 @@ class BackgroundGenerator {
             sizeMinValue.textContent = e.target.value;
             this.config.sizeMin = parseInt(e.target.value);
             this.updatePatternSize();
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         const sizeMaxInput = document.getElementById('size-max');
@@ -224,7 +230,7 @@ class BackgroundGenerator {
             sizeMaxValue.textContent = e.target.value;
             this.config.sizeMax = parseInt(e.target.value);
             this.updatePatternSize();
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         const densityInput = document.getElementById('pokemon-density');
@@ -233,7 +239,7 @@ class BackgroundGenerator {
             densityValue.textContent = parseFloat(e.target.value).toFixed(1);
             this.config.pokemonDensity = parseFloat(e.target.value);
             this.updatePatternSize();
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         // === CONTORNO ===
@@ -255,7 +261,7 @@ class BackgroundGenerator {
         borderWidthInput.addEventListener('input', (e) => {
             borderWidthValue.textContent = parseFloat(e.target.value).toFixed(1);
             this.config.borderWidth = parseFloat(e.target.value);
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         const borderColorRadios = document.querySelectorAll('input[name="border-color"]');
@@ -271,7 +277,7 @@ class BackgroundGenerator {
         borderOpacityInput.addEventListener('input', (e) => {
             borderOpacityValue.textContent = e.target.value;
             this.config.borderOpacity = parseInt(e.target.value);
-            this.redrawPattern();
+            this.redrawPatternDebounced();
         });
 
         // === POKÉMONS ===
@@ -279,12 +285,29 @@ class BackgroundGenerator {
         const pokemonCountValue = document.getElementById('pokemon-count-value');
         pokemonCountInput.addEventListener('input', (e) => {
             pokemonCountValue.textContent = e.target.value;
+            this.config.pokemonCount = parseInt(e.target.value);
+            this.pendingPokemonUpdate = true;
         });
 
         document.getElementById('pokemon-mode').addEventListener('change', (e) => {
             const isRandom = e.target.value === 'random';
+            document.getElementById('pokemon-count-section').style.display = isRandom ? 'block' : 'none';
             document.getElementById('random-pokemon-section').style.display = isRandom ? 'block' : 'none';
             document.getElementById('manual-pokemon-section').style.display = isRandom ? 'none' : 'block';
+            this.config.pokemonMode = e.target.value;
+            this.pendingPokemonUpdate = true;
+        });
+
+        // === NUEVO COMPONENTE DE BÚSQUEDA DE POKÉMON ===
+        this.setupPokemonSearch();
+
+        // === NUEVO SELECTOR DE GENERACIONES ===
+        this.setupGenerationSelector();
+
+        // Checkbox de shiny
+        document.getElementById('allow-shiny').addEventListener('change', (e) => {
+            this.config.allowShiny = e.target.checked;
+            this.pendingPokemonUpdate = true;
         });
 
         // === DIMENSIONES ===
@@ -337,6 +360,13 @@ class BackgroundGenerator {
             header.addEventListener('click', () => {
                 const accordion = header.parentElement;
                 accordion.classList.toggle('active');
+
+                // Cerrar otros acordeones
+                accordions.forEach(otherHeader => {
+                    if (otherHeader !== header) {
+                        otherHeader.parentElement.classList.remove('active');
+                    }
+                });
             });
         });
 
@@ -374,6 +404,14 @@ class BackgroundGenerator {
         this.updateBackgroundOnly();
     }
 
+    // Redibujar con debounce para optimizar rendimiento
+    redrawPatternDebounced() {
+        clearTimeout(this.debounceTimeout);
+        this.debounceTimeout = setTimeout(() => {
+            this.redrawPattern();
+        }, 150); // 150ms de espera
+    }
+
     // Actualizar tamaño del patrón basado en configuración
     updatePatternSize() {
         const baseSize = this.config.sizeMode === 'fixed' 
@@ -382,8 +420,296 @@ class BackgroundGenerator {
         this.patternSize = baseSize / this.config.pokemonDensity;
     }
 
+    // === NUEVOS MÉTODOS PARA COMPONENTES ===
+    
+    async loadPokemonNameList() {
+        try {
+            const nameList = await loadPokemonNameList();
+            this.pokemonNameList = nameList;
+        } catch (error) {
+            console.error('Error al cargar lista de Pokémon:', error);
+        }
+    }
+
+    setupPokemonSearch() {
+        const searchInput = document.getElementById('pokemon-search');
+        const addBtn = document.getElementById('add-pokemon-btn');
+        const dropdown = document.getElementById('pokemon-suggestions-dropdown');
+        let selectedIndex = -1;
+        let filteredSuggestions = [];
+        
+        // Mostrar sugerencias al escribir
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            selectedIndex = -1;
+            
+            if (!query) {
+                dropdown.classList.remove('show');
+                return;
+            }
+            
+            // Filtrar Pokémon que coincidan
+            filteredSuggestions = this.pokemonNameList
+                .filter(name => name.toLowerCase().includes(query))
+                .slice(0, 10); // Máximo 10 sugerencias
+            
+            if (filteredSuggestions.length === 0) {
+                dropdown.classList.remove('show');
+                return;
+            }
+            
+            // Renderizar sugerencias
+            dropdown.innerHTML = '';
+            filteredSuggestions.forEach((name, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.dataset.index = index;
+                
+                const icon = document.createElement('img');
+                icon.className = 'suggestion-icon';
+                const pokemonId = this.pokemonNameList.indexOf(name) + 1;
+                // Formatear el ID con ceros a la izquierda (4 dígitos)
+                const formattedId = String(pokemonId).padStart(4, '0');
+                // Intentar cargar el icono de Mystery Dungeon
+                icon.src = `https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/${formattedId}/Normal.png`;
+                icon.onerror = () => {
+                    // Fallback a sprites oficiales si falla Mystery Dungeon
+                    icon.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+                    icon.onerror = () => {
+                        icon.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="14" fill="%23667eea"/></svg>';
+                    };
+                };
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'suggestion-name';
+                nameSpan.innerHTML = name.replace(new RegExp(`(${query})`, 'gi'), '<strong>$1</strong>');
+                
+                const idSpan = document.createElement('span');
+                idSpan.className = 'suggestion-id';
+                idSpan.textContent = `#${pokemonId}`;
+                
+                item.appendChild(icon);
+                item.appendChild(nameSpan);
+                item.appendChild(idSpan);
+                
+                // Click en sugerencia
+                item.addEventListener('click', () => {
+                    searchInput.value = name;
+                    dropdown.classList.remove('show');
+                    this.addPokemon();
+                });
+                
+                dropdown.appendChild(item);
+            });
+            
+            dropdown.classList.add('show');
+        });
+        
+        // Navegación con teclado
+        searchInput.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.suggestion-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    searchInput.value = filteredSuggestions[selectedIndex];
+                    dropdown.classList.remove('show');
+                }
+                this.addPokemon();
+            } else if (e.key === 'Escape') {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Agregar Pokémon al hacer clic en el botón
+        addBtn.addEventListener('click', () => {
+            this.addPokemon();
+        });
+    }
+
+    addPokemon() {
+        const searchInput = document.getElementById('pokemon-search');
+        const dropdown = document.getElementById('pokemon-suggestions-dropdown');
+        const pokemonName = searchInput.value.trim().toLowerCase();
+        
+        if (!pokemonName) return;
+        
+        // Verificar que no esté ya en la lista
+        if (this.config.selectedPokemonList.includes(pokemonName)) {
+            searchInput.value = '';
+            dropdown.classList.remove('show');
+            return;
+        }
+        
+        // Verificar que el nombre sea válido
+        if (this.pokemonNameList.length > 0 && !this.pokemonNameList.includes(pokemonName)) {
+            alert('Pokémon no encontrado. Por favor, verifica el nombre.');
+            return;
+        }
+        
+        // Agregar a la lista
+        this.config.selectedPokemonList.push(pokemonName);
+        this.renderPokemonTags();
+        searchInput.value = '';
+        dropdown.classList.remove('show');
+        this.pendingPokemonUpdate = true;
+    }
+
+    removePokemon(pokemonName) {
+        this.config.selectedPokemonList = this.config.selectedPokemonList.filter(name => name !== pokemonName);
+        this.renderPokemonTags();
+        this.pendingPokemonUpdate = true;
+    }
+
+    renderPokemonTags() {
+        const container = document.getElementById('selected-pokemon-list');
+        container.innerHTML = '';
+        
+        this.config.selectedPokemonList.forEach(pokemonName => {
+            const tag = document.createElement('div');
+            tag.className = 'pokemon-tag';
+            
+            // Icono del Pokémon
+            const icon = document.createElement('img');
+            icon.className = 'pokemon-tag-icon';
+            const pokemonId = this.getPokemonIdFromName(pokemonName);
+            const formattedId = String(pokemonId).padStart(4, '0');
+            // Usar sprite de Mystery Dungeon
+            icon.src = `https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/${formattedId}/Normal.png`;
+            icon.onerror = () => {
+                // Fallback a sprites oficiales
+                icon.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+                icon.onerror = () => {
+                    icon.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10" fill="%23999"/></svg>';
+                };
+            };
+            
+            // Nombre
+            const name = document.createElement('span');
+            name.className = 'pokemon-tag-name';
+            name.textContent = pokemonName;
+            
+            // Botón de eliminar
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'pokemon-tag-remove';
+            removeBtn.innerHTML = '×';
+            removeBtn.addEventListener('click', () => this.removePokemon(pokemonName));
+            
+            tag.appendChild(icon);
+            tag.appendChild(name);
+            tag.appendChild(removeBtn);
+            container.appendChild(tag);
+        });
+    }
+
+    getPokemonIdFromName(name) {
+        // Obtener el índice del Pokémon en la lista + 1 (aproximación)
+        const index = this.pokemonNameList.indexOf(name.toLowerCase());
+        return index >= 0 ? index + 1 : 1;
+    }
+
+    setupGenerationSelector() {
+        // Botones de acción rápida
+        const actionBtns = document.querySelectorAll('.gen-action-btn');
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const toggleBtns = document.querySelectorAll('.gen-toggle-btn');
+                
+                switch (action) {
+                    case 'all':
+                        toggleBtns.forEach(tb => tb.classList.add('active'));
+                        this.config.generations = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                        break;
+                    case 'none':
+                        toggleBtns.forEach(tb => tb.classList.remove('active'));
+                        this.config.generations = [];
+                        break;
+                    case 'classic':
+                        toggleBtns.forEach(tb => {
+                            const gen = parseInt(tb.dataset.gen);
+                            if (gen <= 4) {
+                                tb.classList.add('active');
+                            } else {
+                                tb.classList.remove('active');
+                            }
+                        });
+                        this.config.generations = [1, 2, 3, 4];
+                        break;
+                    case 'modern':
+                        toggleBtns.forEach(tb => {
+                            const gen = parseInt(tb.dataset.gen);
+                            if (gen >= 5) {
+                                tb.classList.add('active');
+                            } else {
+                                tb.classList.remove('active');
+                            }
+                        });
+                        this.config.generations = [5, 6, 7, 8, 9];
+                        break;
+                }
+                this.pendingPokemonUpdate = true;
+            });
+        });
+        
+        // Botones toggle individuales
+        const toggleBtns = document.querySelectorAll('.gen-toggle-btn');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                
+                // Actualizar la configuración
+                this.config.generations = Array.from(toggleBtns)
+                    .filter(tb => tb.classList.contains('active'))
+                    .map(tb => parseInt(tb.dataset.gen));
+                
+                this.pendingPokemonUpdate = true;
+            });
+        });
+    }
+
     getRandomColor() {
         return this.pastelColors[Math.floor(Math.random() * this.pastelColors.length)];
+    }
+
+    showSpinner() {
+        const spinner = document.getElementById('loading-spinner');
+        if (spinner) {
+            spinner.classList.add('show');
+        }
+    }
+
+    hideSpinner() {
+        const spinner = document.getElementById('loading-spinner');
+        if (spinner) {
+            spinner.classList.remove('show');
+        }
     }
 
     getRandomPokemons(count = 3) {
@@ -416,6 +742,18 @@ class BackgroundGenerator {
             case 'hexagon':
                 this.drawHexagonPattern(images);
                 break;
+            case 'brick':
+                this.drawBrickPattern(images);
+                break;
+            case 'diagonal':
+                this.drawDiagonalPattern(images);
+                break;
+            case 'wave':
+                this.drawWavePattern(images);
+                break;
+            case 'diamond':
+                this.drawDiamondPattern(images);
+                break;
             case 'circles':
                 this.drawCirclesPattern(images);
                 break;
@@ -441,40 +779,18 @@ class BackgroundGenerator {
             const borderWidth = Math.max(1, size * (this.config.borderWidth / 100));
             const opacity = this.config.borderOpacity / 100;
             
+            // Calcular tamaño escalado para el contorno
+            const borderSize = size + (borderWidth * 2);
+            
+            // Dibujar silueta escalada, centrada
+            this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
+            this.ctx.globalAlpha = opacity;
             this.ctx.globalCompositeOperation = 'source-over';
-            
-            // Dibujar siluetas en 8 direcciones principales
-            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
-                const offsetX = Math.cos(angle) * borderWidth;
-                const offsetY = Math.sin(angle) * borderWidth;
-                
-                this.ctx.save();
-                
-                this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
-                this.ctx.globalAlpha = opacity;
-                
-                this.ctx.drawImage(img, -size / 2 + offsetX, -size / 2 + offsetY, size, size);
-                
-                this.ctx.restore();
-            }
-            
-            // Dibujar siluetas adicionales en las diagonales intermedias para un contorno más suave
-            for (let angle = Math.PI / 8; angle < Math.PI * 2; angle += Math.PI / 4) {
-                const offsetX = Math.cos(angle) * borderWidth;
-                const offsetY = Math.sin(angle) * borderWidth;
-                
-                this.ctx.save();
-                
-                this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
-                this.ctx.globalAlpha = opacity * 0.7;
-                
-                this.ctx.drawImage(img, -size / 2 + offsetX, -size / 2 + offsetY, size, size);
-                
-                this.ctx.restore();
-            }
+            // La silueta se centra en (0,0) con -borderSize/2 en ambos ejes
+            this.ctx.drawImage(img, -borderSize / 2, -borderSize / 2, borderSize, borderSize);
         }
         
-        // Dibujar imagen principal sin filtros
+        // Dibujar imagen principal sin filtros, también centrada en (0,0)
         this.ctx.filter = 'none';
         this.ctx.globalCompositeOperation = 'source-over';
         this.ctx.globalAlpha = 1;
@@ -489,7 +805,9 @@ class BackgroundGenerator {
 
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
-                const img = images[Math.floor(Math.random() * images.length)];
+                // Intercalar Pokémon basándose en la posición de la cuadrícula
+                const imgIndex = (row * cols + col) % images.length;
+                const img = images[imgIndex];
                 const x = col * this.patternSize;
                 const y = row * this.patternSize;
                 const offsetX = (Math.random() - 0.5) * 20;
@@ -522,7 +840,9 @@ class BackgroundGenerator {
                 const angle = (Math.PI * 2 * i) / numPetals + layer * 0.2;
                 const x = centerX + Math.cos(angle) * layerRadius;
                 const y = centerY + Math.sin(angle) * layerRadius;
-                const img = images[Math.floor(Math.random() * images.length)];
+                // Intercalar Pokémon basándose en capa e índice
+                const imgIndex = (layer * numPetals + i) % images.length;
+                const img = images[imgIndex];
 
                 this.ctx.save();
                 this.ctx.translate(x, y);
@@ -538,7 +858,7 @@ class BackgroundGenerator {
     }
 
     drawHexagonPattern(images) {
-        const hexSize = this.patternSize;
+        const hexSize = this.patternSize * 0.7; // Reducir gap
         const hexWidth = hexSize * Math.sqrt(3);
         const hexHeight = hexSize * 2;
         
@@ -549,9 +869,122 @@ class BackgroundGenerator {
             for (let col = 0; col < cols; col++) {
                 const x = col * hexWidth + (row % 2) * (hexWidth / 2);
                 const y = row * hexHeight * 0.75;
-                const img = images[Math.floor(Math.random() * images.length)];
+                // Intercalar Pokémon basándose en la posición hexagonal
+                const imgIndex = (row * cols + col) % images.length;
+                const img = images[imgIndex];
 
                 // Calcular tamaño según el modo
+                let size;
+                if (this.config.sizeMode === 'fixed') {
+                    size = this.config.imageSize;
+                } else {
+                    size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
+                }
+
+                this.drawImageWithBorder(img, x, y, size);
+            }
+        }
+    }
+
+    drawBrickPattern(images) {
+        const cols = Math.ceil(this.canvas.width / this.patternSize) + 1;
+        const rows = Math.ceil(this.canvas.height / this.patternSize) + 1;
+
+        for (let row = 0; row < rows; row++) {
+            const offset = (row % 2) * (this.patternSize / 2);
+            for (let col = 0; col < cols; col++) {
+                const imgIndex = (row * cols + col) % images.length;
+                const img = images[imgIndex];
+                const x = col * this.patternSize + offset;
+                const y = row * this.patternSize;
+
+                let size;
+                if (this.config.sizeMode === 'fixed') {
+                    size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                } else {
+                    size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
+                }
+
+                const centerX = x + this.patternSize / 2;
+                const centerY = y + this.patternSize / 2;
+                this.drawImageWithBorder(img, centerX, centerY, size);
+            }
+        }
+    }
+
+    drawDiagonalPattern(images) {
+        const diagonalSpacing = this.patternSize * 1.2;
+        const cols = Math.ceil(this.canvas.width / diagonalSpacing) + 2;
+        const rows = Math.ceil(this.canvas.height / diagonalSpacing) + 2;
+
+        let imgCounter = 0;
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const imgIndex = imgCounter % images.length;
+                const img = images[imgIndex];
+                
+                // Posición diagonal
+                const x = col * diagonalSpacing + row * diagonalSpacing;
+                const y = row * diagonalSpacing;
+
+                if (x < this.canvas.width + diagonalSpacing && y < this.canvas.height + diagonalSpacing) {
+                    let size;
+                    if (this.config.sizeMode === 'fixed') {
+                        size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                    } else {
+                        size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
+                    }
+
+                    this.drawImageWithBorder(img, x, y, size);
+                    imgCounter++;
+                }
+            }
+        }
+    }
+
+    drawWavePattern(images) {
+        const cols = Math.ceil(this.canvas.width / this.patternSize) + 1;
+        const rows = Math.ceil(this.canvas.height / this.patternSize) + 1;
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const imgIndex = (row * cols + col) % images.length;
+                const img = images[imgIndex];
+                
+                // Crear efecto de onda sinusoidal
+                const waveOffset = Math.sin(col * 0.5) * (this.patternSize * 0.3);
+                const x = col * this.patternSize;
+                const y = row * this.patternSize + waveOffset;
+
+                let size;
+                if (this.config.sizeMode === 'fixed') {
+                    size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                } else {
+                    size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
+                }
+
+                const centerX = x + this.patternSize / 2;
+                const centerY = y + this.patternSize / 2;
+                this.drawImageWithBorder(img, centerX, centerY, size);
+            }
+        }
+    }
+
+    drawDiamondPattern(images) {
+        const diamondSize = this.patternSize * 1.4;
+        const cols = Math.ceil(this.canvas.width / diamondSize) + 1;
+        const rows = Math.ceil(this.canvas.height / (diamondSize * 0.5)) + 1;
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const imgIndex = (row * cols + col) % images.length;
+                const img = images[imgIndex];
+                
+                // Patrón de diamante/rombo
+                const offsetX = (row % 2) * (diamondSize / 2);
+                const x = col * diamondSize + offsetX;
+                const y = row * (diamondSize * 0.5);
+
                 let size;
                 if (this.config.sizeMode === 'fixed') {
                     size = this.config.imageSize;
@@ -577,7 +1010,9 @@ class BackgroundGenerator {
                 const angle = (Math.PI * 2 * i) / itemsPerCircle;
                 const x = centerX + Math.cos(angle) * radius;
                 const y = centerY + Math.sin(angle) * radius;
-                const img = images[Math.floor(Math.random() * images.length)];
+                // Intercalar Pokémon basándose en círculo e índice
+                const imgIndex = ((circle - 1) * itemsPerCircle + i) % images.length;
+                const img = images[imgIndex];
 
                 this.ctx.save();
                 this.ctx.translate(x, y);
@@ -605,7 +1040,9 @@ class BackgroundGenerator {
             const radius = maxRadius * progress;
             const x = centerX + Math.cos(angle) * radius;
             const y = centerY + Math.sin(angle) * radius;
-            const img = images[Math.floor(Math.random() * images.length)];
+            // Intercalar Pokémon basándose en el índice del punto
+            const imgIndex = i % images.length;
+            const img = images[imgIndex];
 
             this.ctx.save();
             this.ctx.translate(x, y);
@@ -625,7 +1062,9 @@ class BackgroundGenerator {
         for (let i = 0; i < numItems; i++) {
             const x = Math.random() * this.canvas.width;
             const y = Math.random() * this.canvas.height;
-            const img = images[Math.floor(Math.random() * images.length)];
+            // Intercalar Pokémon basándose en el índice
+            const imgIndex = i % images.length;
+            const img = images[imgIndex];
             const rotation = Math.random() * Math.PI * 2;
             const scale = 0.5 + Math.random() * 1;
 
@@ -642,46 +1081,144 @@ class BackgroundGenerator {
     }
 
     async downloadImage() {
-        // Crear un canvas temporal con las dimensiones configuradas
-        const downloadCanvas = document.createElement('canvas');
-        downloadCanvas.width = this.config.canvasWidth;
-        downloadCanvas.height = this.config.canvasHeight;
-        const downloadCtx = downloadCanvas.getContext('2d');
+        // Mostrar spinner
+        this.showSpinner();
+        
+        try {
+            // Verificar que haya imágenes cargadas
+            if (!this.loadedImages || this.loadedImages.length === 0) {
+                alert('Por favor, genera un fondo primero antes de descargar.');
+                return;
+            }
 
-        // Guardar el canvas y contexto originales
-        const originalCanvas = this.canvas;
-        const originalCtx = this.ctx;
+            // Crear un canvas temporal con las dimensiones configuradas
+            const downloadCanvas = document.createElement('canvas');
+            downloadCanvas.width = this.config.canvasWidth;
+            downloadCanvas.height = this.config.canvasHeight;
+            const downloadCtx = downloadCanvas.getContext('2d');
 
-        // Temporalmente usar el canvas de descarga
-        this.canvas = downloadCanvas;
-        this.ctx = downloadCtx;
+            // Guardar el canvas y contexto originales
+            const originalCanvas = this.canvas;
+            const originalCtx = this.ctx;
 
-        // Generar el fondo en el canvas de descarga
-        await this.renderBackground();
+            // Temporalmente usar el canvas de descarga
+            this.canvas = downloadCanvas;
+            this.ctx = downloadCtx;
 
-        // Restaurar el canvas original
-        this.canvas = originalCanvas;
-        this.ctx = originalCtx;
+            // Dibujar el mismo fondo que se está mostrando
+            if (this.config.bgType === 'solid') {
+                this.ctx.fillStyle = this.config.bgColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            } else {
+                const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+                gradient.addColorStop(0, this.config.gradientColor1);
+                gradient.addColorStop(1, this.config.gradientColor2);
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
 
-        // Descargar la imagen del canvas temporal
-        const link = document.createElement('a');
-        link.download = `pokemon-background-${Date.now()}.png`;
-        link.href = downloadCanvas.toDataURL('image/png');
-        link.click();
+            // Dibujar el mismo patrón con las imágenes ya cargadas
+            this.drawPattern(this.loadedImages);
+
+            // Restaurar el canvas original
+            this.canvas = originalCanvas;
+            this.ctx = originalCtx;
+
+            // Descargar la imagen del canvas temporal
+            const link = document.createElement('a');
+            link.download = `pokemon-background-${Date.now()}.png`;
+            link.href = downloadCanvas.toDataURL('image/png');
+            link.click();
+        } finally {
+            // Ocultar spinner
+            this.hideSpinner();
+        }
     }
 
     async generateBackground() {
-        await this.renderBackground();
+        // Mostrar spinner
+        this.showSpinner();
+        
+        try {
+            // Restablecer la selección de color del usuario si hay cambios de Pokémon pendientes
+            if (this.pendingPokemonUpdate) {
+                this.config.userSelectedColor = false;
+                this.pendingPokemonUpdate = false;
+            }
+            await this.renderBackground();
+            // Actualizar la selección visual de colores después de generar
+            this.updateColorSelection();
+        } finally {
+            // Ocultar spinner siempre, incluso si hay error
+            this.hideSpinner();
+        }
+    }
+
+    // Actualizar la selección visual de los colores en las paletas
+    updateColorSelection() {
+        // Actualizar color sólido
+        if (this.config.bgType === 'solid' && this.config.bgColor) {
+            const solidPalette = document.getElementById('solid-color-palette');
+            solidPalette.querySelectorAll('.color-option').forEach(btn => {
+                if (btn.dataset.color === this.config.bgColor) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Actualizar colores de gradiente
+        if (this.config.bgType === 'gradient') {
+            const gradient1Palette = document.getElementById('gradient-color1-palette');
+            gradient1Palette.querySelectorAll('.color-option').forEach(btn => {
+                if (btn.dataset.color === this.config.gradientColor1) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            const gradient2Palette = document.getElementById('gradient-color2-palette');
+            gradient2Palette.querySelectorAll('.color-option').forEach(btn => {
+                if (btn.dataset.color === this.config.gradientColor2) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
     }
 
     async renderBackground() {
-        // Generar color de fondo si no ha sido seleccionado por el usuario
+        // Obtener pokémons según el modo
+        let pokemonDataList;
+        if (this.config.pokemonMode === 'manual' && this.config.selectedPokemonList.length > 0) {
+            // Cargar pokémons por nombre desde la nueva lista
+            pokemonDataList = await Promise.all(
+                this.config.selectedPokemonList.map(name => loadPokemonData(name).catch(() => null))
+            );
+            pokemonDataList = pokemonDataList.filter(data => data !== null);
+        } else {
+            // Cargar pokémons aleatorios según las generaciones seleccionadas
+            const promises = [];
+            for (let i = 0; i < this.config.pokemonCount; i++) {
+                promises.push(loadRandomPokemon(null, this.config.generations));
+            }
+            pokemonDataList = await Promise.all(promises);
+        }
+
+        // Si no se ha seleccionado un color, sugerir uno basado en los Pokémon
         if (!this.config.userSelectedColor) {
+            const colorSuggestion = await suggestColorsFromPokemons(pokemonDataList, this.pastelColors);
+            
             if (this.config.bgType === 'solid') {
-                this.config.bgColor = this.getRandomColor();
+                this.config.bgColor = colorSuggestion.suggested;
             } else {
-                this.config.gradientColor1 = this.getRandomColor();
-                this.config.gradientColor2 = this.getRandomColor();
+                // Para degradado, usar el color sugerido y otro aleatorio de la paleta
+                this.config.gradientColor1 = colorSuggestion.suggested;
+                const otherColors = colorSuggestion.alternatives.filter(c => c !== colorSuggestion.suggested);
+                this.config.gradientColor2 = otherColors[Math.floor(Math.random() * otherColors.length)];
             }
         }
 
@@ -695,26 +1232,6 @@ class BackgroundGenerator {
             gradient.addColorStop(1, this.config.gradientColor2);
             this.ctx.fillStyle = gradient;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-
-        // Obtener pokémons según el modo
-        let pokemonDataList;
-        if (this.config.pokemonMode === 'manual' && this.config.pokemonNames.length > 0) {
-            // Cargar pokémons por nombre
-            pokemonDataList = await Promise.all(
-                this.config.pokemonNames.map(name => loadPokemonData(name))
-            );
-        } else {
-            // Cargar pokémons aleatorios que combinen con el color de fondo
-            const bgColor = this.config.bgType === 'solid' 
-                ? this.config.bgColor 
-                : this.config.gradientColor1;
-            
-            pokemonDataList = await getPokemonsByColor(
-                bgColor, 
-                this.config.generations, 
-                this.config.pokemonCount
-            );
         }
 
         // Filtrar pokémons que se cargaron correctamente y cargar sus imágenes

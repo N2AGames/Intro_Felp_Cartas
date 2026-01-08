@@ -149,3 +149,70 @@ async function getPokemonsByColor(bgColor, generations, count) {
         return await Promise.all(promises);
     }
 }
+
+// Función para sugerir colores de fondo basados en los Pokémon
+async function suggestColorsFromPokemons(pokemonDataList, pastelColors) {
+    // Si no hay pokémons, retornar un color aleatorio
+    if (!pokemonDataList || pokemonDataList.length === 0) {
+        return {
+            suggested: pastelColors[Math.floor(Math.random() * pastelColors.length)],
+            alternatives: pastelColors
+        };
+    }
+
+    // Obtener los colores de los Pokémon
+    const pokemonColors = [];
+    for (const pokemonData of pokemonDataList) {
+        if (pokemonData && pokemonData.species) {
+            try {
+                const speciesResponse = await fetch(pokemonData.species.url);
+                const speciesData = await speciesResponse.json();
+                if (speciesData.color) {
+                    pokemonColors.push(speciesData.color.name);
+                }
+            } catch (error) {
+                console.error('Error al obtener color del Pokémon:', error);
+            }
+        }
+    }
+
+    // Si no pudimos obtener colores, retornar un color aleatorio
+    if (pokemonColors.length === 0) {
+        return {
+            suggested: pastelColors[Math.floor(Math.random() * pastelColors.length)],
+            alternatives: pastelColors
+        };
+    }
+
+    // Mapeo de colores de Pokémon a colores pastel
+    const colorMapping = {
+        'black': ['#E0BBE4', '#C7CEEA', '#D5E1DF', '#E5D9F2'],
+        'blue': ['#BAE1FF', '#C8E7ED', '#C9E4E7', '#E6F3FF'],
+        'brown': ['#FFDFBA', '#FFD6BA', '#F7E7CE', '#FFF5E4'],
+        'gray': ['#D4F1F4', '#D5E1DF', '#E8F3D6', '#F0FFF0'],
+        'green': ['#BAFFC9', '#B8E0D2', '#D6E9CA', '#E8F3D6'],
+        'pink': ['#FFB3BA', '#FFC8DD', '#FADCE7', '#FFE5EC'],
+        'purple': ['#E0BBE4', '#E7C6FF', '#E5D9F2', '#FFEEF8'],
+        'red': ['#FFB3BA', '#FFDFD3', '#FFD6BA', '#FADCE7'],
+        'white': ['#FFFFBA', '#D4F1F4', '#FFF0F5', '#F0FFF0'],
+        'yellow': ['#FFFFBA', '#FFDFBA', '#FFF5E4', '#FFE5EC']
+    };
+
+    // Elegir el color más común entre los Pokémon
+    const colorCounts = {};
+    pokemonColors.forEach(color => {
+        colorCounts[color] = (colorCounts[color] || 0) + 1;
+    });
+    const mostCommonColor = Object.keys(colorCounts).reduce((a, b) => 
+        colorCounts[a] > colorCounts[b] ? a : b
+    );
+
+    // Obtener colores pastel que combinen
+    const matchingPastelColors = colorMapping[mostCommonColor] || pastelColors.slice(0, 4);
+    const suggestedColor = matchingPastelColors[Math.floor(Math.random() * matchingPastelColors.length)];
+
+    return {
+        suggested: suggestedColor,
+        alternatives: pastelColors
+    };
+}
