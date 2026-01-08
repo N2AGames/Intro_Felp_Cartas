@@ -7,40 +7,152 @@
     <link rel="stylesheet" href="styles/bg-generator.css">
 </head>
 <body>
-    <div class="buttons-menu">
-        <button id="regenerate">Regenerar</button>
-        <button id="download">Descargar</button>
-        <button id="toggle-menu">☰ Configuración</button>
-    </div>
+    <button class="toggle-menu-btn" id="toggle-menu">☰ Configuración</button>
 
     <div class="side-menu" id="side-menu">
         <h2>Configuración</h2>
         
-        <div class="menu-section">
-            <label for="pattern-type">Tipo de Patrón:</label>
-            <select id="pattern-type">
-                <option value="grid">Cuadrícula</option>
-                <option value="hexagon">Hexágonos</option>
-            </select>
+        <!-- Acordeón 1: Fondo -->
+        <div class="accordion">
+            <button class="accordion-header">
+                <span>🎨 Fondo</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+                <div class="menu-section">
+                    <label>Tipo de Fondo:</label>
+                    <select id="bg-type">
+                        <option value="solid">Sólido</option>
+                        <option value="gradient">Degradado</option>
+                    </select>
+                </div>
+                <div class="menu-section" id="solid-color-section">
+                    <label for="bg-color">Color:</label>
+                    <input type="color" id="bg-color" value="#4ECDC4">
+                    <button id="random-color" class="small-btn">Aleatorio</button>
+                </div>
+                <div class="menu-section hidden" id="gradient-section">
+                    <label for="gradient-color1">Color 1:</label>
+                    <input type="color" id="gradient-color1" value="#4ECDC4">
+                    <label for="gradient-color2">Color 2:</label>
+                    <input type="color" id="gradient-color2" value="#45B7D1">
+                    <button id="random-gradient" class="small-btn">Aleatorio</button>
+                </div>
+            </div>
         </div>
 
-        <div class="menu-section">
-            <label for="bg-color">Color de Fondo:</label>
-            <input type="color" id="bg-color" value="#4ECDC4">
-            <button id="random-color" class="small-btn">Aleatorio</button>
+        <!-- Acordeón 2: Patrón -->
+        <div class="accordion">
+            <button class="accordion-header">
+                <span>📐 Patrón</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+                <div class="menu-section">
+                    <label for="pattern-type">Tipo de Patrón:</label>
+                    <select id="pattern-type">
+                        <option value="grid">Cuadrícula</option>
+                        <option value="hexagon">Hexágonos</option>
+                    </select>
+                </div>
+                <div class="menu-section">
+                    <label>Tamaño de Pokémons:</label>
+                    <select id="size-mode">
+                        <option value="fixed">Tamaño Fijo</option>
+                        <option value="range">Rango Variable</option>
+                    </select>
+                </div>
+                <div class="menu-section" id="fixed-size-section">
+                    <label for="image-size">Tamaño: <span id="size-value">150</span>px</label>
+                    <input type="range" id="image-size" min="50" max="400" value="150">
+                </div>
+                <div class="menu-section hidden" id="range-size-section">
+                    <label for="size-min">Tamaño Mínimo: <span id="size-min-value">100</span>px</label>
+                    <input type="range" id="size-min" min="50" max="300" value="100">
+                    <label for="size-max">Tamaño Máximo: <span id="size-max-value">200</span>px</label>
+                    <input type="range" id="size-max" min="100" max="400" value="200">
+                </div>
+                <div class="menu-section">
+                    <label for="pokemon-density">Densidad: <span id="density-value">1.0</span></label>
+                    <input type="range" id="pokemon-density" min="0.5" max="3" step="0.1" value="1.0">
+                </div>
+            </div>
         </div>
 
-        <div class="menu-section">
-            <label for="image-size">Tamaño de Imágenes: <span id="size-value">150</span>px</label>
-            <input type="range" id="image-size" min="50" max="400" value="150">
+        <!-- Acordeón 3: Pokémons -->
+        <div class="accordion">
+            <button class="accordion-header">
+                <span>⚡ Pokémons</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+                <div class="menu-section">
+                    <label for="pokemon-count">Pokémons Diferentes: <span id="pokemon-count-value">3</span></label>
+                    <input type="range" id="pokemon-count" min="1" max="10" value="3">
+                </div>
+                <div class="menu-section">
+                    <label>Modo de Selección:</label>
+                    <select id="pokemon-mode">
+                        <option value="random">Aleatorios</option>
+                        <option value="manual">Selección Manual</option>
+                    </select>
+                </div>
+                <div class="menu-section" id="manual-pokemon-section" style="display: none;">
+                    <label for="pokemon-names">Nombres (separados por coma):</label>
+                    <textarea id="pokemon-names" rows="3" placeholder="pikachu, charizard, mewtwo"></textarea>
+                </div>
+                <div class="menu-section" id="random-pokemon-section">
+                    <label>Generaciones:</label>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" class="gen-checkbox" value="1" checked> Gen 1</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="2" checked> Gen 2</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="3" checked> Gen 3</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="4" checked> Gen 4</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="5" checked> Gen 5</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="6" checked> Gen 6</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="7" checked> Gen 7</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="8" checked> Gen 8</label>
+                        <label><input type="checkbox" class="gen-checkbox" value="9" checked> Gen 9</label>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <label>
+                        <input type="checkbox" id="allow-shiny">
+                        Permitir Shiny
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div class="menu-section">
-            <label for="pokemon-density">Densidad de Pokémons: <span id="density-value">1.0</span></label>
-            <input type="range" id="pokemon-density" min="0.5" max="3" step="0.1" value="1.0">
+        <!-- Acordeón 4: Dimensiones -->
+        <div class="accordion">
+            <button class="accordion-header">
+                <span>📏 Dimensiones de Imagen</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+                <div class="menu-section">
+                    <label for="canvas-width">Ancho: <span id="width-value">1920</span>px</label>
+                    <input type="number" id="canvas-width" min="400" max="7680" value="1920" step="10">
+                </div>
+                <div class="menu-section">
+                    <label for="canvas-height">Alto: <span id="height-value">1080</span>px</label>
+                    <input type="number" id="canvas-height" min="400" max="4320" value="1080" step="10">
+                </div>
+                <div class="menu-section">
+                    <button id="preset-fullhd" class="preset-btn">Full HD (1920x1080)</button>
+                    <button id="preset-4k" class="preset-btn">4K (3840x2160)</button>
+                    <button id="preset-window" class="preset-btn">Tamaño Ventana</button>
+                </div>
+            </div>
         </div>
 
         <button id="apply-settings" class="apply-btn">Aplicar</button>
+        
+        <div class="action-buttons">
+            <button id="regenerate" class="action-btn">Regenerar</button>
+            <button id="download" class="action-btn">Descargar</button>
+        </div>
     </div>
 
     <script src="scripts/bg-generator.js"></script>

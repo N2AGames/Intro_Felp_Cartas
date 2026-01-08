@@ -5,37 +5,29 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.buttons-menu {
+.toggle-menu-btn {
     position: fixed;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.buttons-menu button {
-    margin: 0 5px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
-    background: #4ECDC4;
+    background: rgba(78, 205, 196, 0.9);
     color: white;
     font-weight: bold;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.buttons-menu button:hover {
-    background: #45B7D1;
+.toggle-menu-btn:hover {
+    background: rgba(69, 183, 209, 0.9);
     transform: scale(1.05);
 }
 
-.buttons-menu button:active {
+.toggle-menu-btn:active {
     transform: scale(0.95);
 }
 
@@ -174,4 +166,185 @@ input[type="range"]::-moz-range-thumb {
 input[type="range"]::-moz-range-thumb:hover {
     background: #45B7D1;
     transform: scale(1.2);
+}
+
+/* Acordeones */
+.accordion {
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 12px 15px;
+    background: #f0f0f0;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: #e0e0e0;
+}
+
+.accordion-header span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+    font-size: 12px;
+}
+
+.accordion.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: white;
+}
+
+.accordion.active .accordion-content {
+    max-height: 1000px;
+    padding: 15px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Checkbox Grid */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: normal;
+    margin: 0;
+}
+
+.checkbox-grid input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #4ECDC4;
+}
+
+textarea:hover {
+    border-color: #4ECDC4;
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#regenerate {
+    background: #4ECDC4;
+}
+
+#regenerate:hover {
+    background: #45B7D1;
+    transform: scale(1.02);
+}
+
+#download {
+    background: #F4A261;
+}
+
+#download:hover {
+    background: #E76F51;
+    transform: scale(1.02);
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* Botones de preset */
+.preset-btn {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.preset-btn:hover {
+    border-color: #4ECDC4;
+    background: #f0f9f9;
+    color: #4ECDC4;
+}
+
+.preset-btn:active {
+    transform: scale(0.98);
+}
+
+/* Input number */
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="number"]:hover,
+input[type="number"]:focus {
+    outline: none;
+    border-color: #4ECDC4;
 }
