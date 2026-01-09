@@ -127,6 +127,31 @@
                     <label for="border-opacity">Opacidad: <span id="border-opacity-value">90</span>%</label>
                     <input type="range" id="border-opacity" min="0" max="100" step="5" value="90">
                 </div>
+                <div class="menu-section">
+                    <label>
+                        <input type="checkbox" id="silhouette-mode">
+                        Mostrar Solo Silueta
+                    </label>
+                </div>
+                <div class="menu-section hidden" id="silhouette-settings">
+                    <label>Color de la Silueta:</label>
+                    <div style="margin: 8px 0;">
+                        <label style="margin-right: 10px;">
+                            <input type="radio" name="silhouette-color" value="black" checked>
+                            Negro
+                        </label>
+                        <label style="margin-right: 10px;">
+                            <input type="radio" name="silhouette-color" value="white">
+                            Blanco
+                        </label>
+                        <label>
+                            <input type="radio" name="silhouette-color" value="transparent">
+                            Transparente
+                        </label>
+                    </div>
+                    <label for="silhouette-opacity">Opacidad: <span id="silhouette-opacity-value">100</span>%</label>
+                    <input type="range" id="silhouette-opacity" min="0" max="100" step="5" value="100">
+                </div>
             </div>
         </div>
 

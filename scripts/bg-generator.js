@@ -3,10 +3,7 @@ class BackgroundGenerator {
     constructor() {
         this.canvas = null;
         this.ctx = null;
-        this.selectedPokemons = [];
-        this.backgroundColor = '';
         this.patternSize = 150;
-        this.maxPokemonId = 1025; // Total de pokémons disponibles
         this.loadedImages = []; // Almacenar imágenes cargadas para redibujado rápido
         this.debounceTimeout = null; // Para optimizar el rendimiento
         this.pendingPokemonUpdate = false; // Indica si hay cambios pendientes de Pokémon
@@ -54,7 +51,10 @@ class BackgroundGenerator {
             enableBorder: true,
             borderWidth: 3,
             borderColorMode: 'white',
-            borderOpacity: 90
+            borderOpacity: 90,
+            enableSilhouette: false,
+            silhouetteColor: 'black',
+            silhouetteOpacity: 100
         };
         
         this.pokemonNameList = []; // Lista de nombres de Pokémon para autocompletado
@@ -316,6 +316,32 @@ class BackgroundGenerator {
         borderOpacityInput.addEventListener('input', (e) => {
             borderOpacityValue.textContent = e.target.value;
             this.config.borderOpacity = parseInt(e.target.value);
+            this.redrawPatternDebounced();
+        });
+
+        // === SILUETA ===
+        const enableSilhouetteCheckbox = document.getElementById('silhouette-mode');
+        const silhouetteSettings = document.getElementById('silhouette-settings');
+        
+        enableSilhouetteCheckbox.addEventListener('change', (e) => {
+            this.config.enableSilhouette = e.target.checked;
+            silhouetteSettings.classList.toggle('hidden', !e.target.checked);
+            this.redrawPattern();
+        });
+
+        const silhouetteColorRadios = document.querySelectorAll('input[name="silhouette-color"]');
+        silhouetteColorRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.config.silhouetteColor = e.target.value;
+                this.redrawPattern();
+            });
+        });
+
+        const silhouetteOpacityInput = document.getElementById('silhouette-opacity');
+        const silhouetteOpacityValue = document.getElementById('silhouette-opacity-value');
+        silhouetteOpacityInput.addEventListener('input', (e) => {
+            silhouetteOpacityValue.textContent = e.target.value;
+            this.config.silhouetteOpacity = parseInt(e.target.value);
             this.redrawPatternDebounced();
         });
 
@@ -724,7 +750,6 @@ class BackgroundGenerator {
     }
 
     getPokemonIdFromName(name) {
-        // Obtener el índice del Pokémon en la lista + 1 (aproximación)
         const index = this.pokemonNameList.indexOf(name.toLowerCase());
         return index >= 0 ? index + 1 : 1;
     }
@@ -888,11 +913,36 @@ class BackgroundGenerator {
             }
         }
         
-        // Dibujar imagen principal sin filtros, también centrada en (0,0)
+        // Dibujar imagen principal
         this.ctx.filter = 'none';
         this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 1;
-        this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        
+        if (this.config.enableSilhouette) {
+            // Aplicar efecto de silueta
+            const silhouetteOpacity = this.config.silhouetteOpacity / 100;
+            this.ctx.globalAlpha = silhouetteOpacity;
+            
+            if (this.config.silhouetteColor === 'black') {
+                this.ctx.filter = 'brightness(0) saturate(100%)';
+            } else if (this.config.silhouetteColor === 'white') {
+                this.ctx.filter = 'brightness(0) saturate(100%) invert(100%)';
+            } else if (this.config.silhouetteColor === 'transparent') {
+                // Solo dibujar el borde si está habilitado, no la imagen
+                if (!this.config.enableBorder) {
+                    this.ctx.restore();
+                    return;
+                }
+                // Si tiene borde, solo mostramos el borde (ya dibujado arriba)
+                this.ctx.restore();
+                return;
+            }
+            
+            this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        } else {
+            // Dibujar imagen normal
+            this.ctx.globalAlpha = 1;
+            this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        }
         
         this.ctx.restore();
     }
