@@ -73,6 +73,12 @@ class BackgroundGenerator {
         document.body.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         
+        // Desactivar suavizado de imágenes para pixel art nítido
+        this.ctx.imageSmoothingEnabled = false;
+        this.ctx.mozImageSmoothingEnabled = false;
+        this.ctx.webkitImageSmoothingEnabled = false;
+        this.ctx.msImageSmoothingEnabled = false;
+        
         // Ajustar canvas al redimensionar ventana
         window.addEventListener('resize', () => {
             this.canvas.width = window.innerWidth;
@@ -1096,6 +1102,12 @@ class BackgroundGenerator {
             downloadCanvas.width = this.config.canvasWidth;
             downloadCanvas.height = this.config.canvasHeight;
             const downloadCtx = downloadCanvas.getContext('2d');
+
+            // Desactivar suavizado también en el canvas de descarga
+            downloadCtx.imageSmoothingEnabled = false;
+            downloadCtx.mozImageSmoothingEnabled = false;
+            downloadCtx.webkitImageSmoothingEnabled = false;
+            downloadCtx.msImageSmoothingEnabled = false;
 
             // Guardar el canvas y contexto originales
             const originalCanvas = this.canvas;

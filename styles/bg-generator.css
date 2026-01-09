@@ -674,3 +674,11 @@ input[type="number"]:focus {
 .gen-toggle-btn:active {
     transform: translateY(0);
 }
+
+/* Mejorar renderizado de pixel art en canvas */
+canvas {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}
