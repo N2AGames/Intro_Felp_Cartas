@@ -639,8 +639,15 @@ img { max-width: 100%; height: auto; }
     .control-panel { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(1.6vmin, 3vw, 1rem); }
 }
 
-/* Botón de generador de fondos */
-.bg-generator-section {
+.promos-container {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+}
+
+/* Botón de promos */
+.promo-section {
     margin-top: 2rem;
     padding: 1rem;
     background: rgba(78, 205, 196, 0.1);
@@ -650,7 +657,7 @@ img { max-width: 100%; height: auto; }
     position: relative;
 }
 
-.close-bg-generator-btn {
+.close-promo-btn {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -674,17 +681,17 @@ img { max-width: 100%; height: auto; }
     margin: 0;
 }
 
-.close-bg-generator-btn:hover {
+.close-promo-btn:hover {
     background: rgba(255, 60, 60, 1);
     transform: rotate(90deg) scale(1.15);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-.close-bg-generator-btn:active {
+.close-promo-btn:active {
     transform: rotate(90deg) scale(0.95);
 }
 
-.bg-generator-btn {
+.promo-btn {
     width: 100%;
     padding: 1rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -703,13 +710,13 @@ img { max-width: 100%; height: auto; }
     gap: 8px;
 }
 
-.bg-generator-btn:hover {
+.promo-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-.bg-generator-btn:active {
+.promo-btn:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -725,7 +732,7 @@ img { max-width: 100%; height: auto; }
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.bg-generator-note {
+.promo-note {
     margin-top: 0.5rem;
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.75rem;

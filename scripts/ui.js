@@ -111,5 +111,23 @@ document.addEventListener('DOMContentLoaded', () => {
             bgGeneratorSection.style.display = 'none';
         });
     }
+
+    // Abrir generador de fondos en nueva ventana
+    const openWitpBtn = document.getElementById('open-witp');
+    if (openWitpBtn) {
+        openWitpBtn.addEventListener('click', () => {
+            window.open('https://n2agames.github.io/WhoIsThisPokemon/');
+        });
+    }
+
+    // Cerrar sección del generador de fondos
+    const closeWitpBtn = document.getElementById('close-witp');
+    const witpSection = document.getElementById('witp-section');
+    if (closeWitpBtn && witpSection) {
+        closeWitpBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            witpSection.style.display = 'none';
+        });
+    }
 });
 //#endregion
