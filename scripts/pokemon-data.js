@@ -68,6 +68,89 @@ function displayPokemonPicture(pokemonData) {
     imgElement.alt = pokemonData.name;
 }
 
+// Función mejorada para obtener pokémons con colores similares
+async function getPokemonsByColorSimilarity(generations, count) {
+    // Colores disponibles en PokeAPI
+    const availableColors = ['black', 'blue', 'brown', 'gray', 'green', 'pink', 'purple', 'red', 'white', 'yellow'];
+    
+    // Clasificar colores en grupos
+    const colorGroups = {
+        neutral: ['black', 'gray', 'white'],
+        warm: ['red', 'pink', 'brown', 'yellow'],
+        cool: ['blue', 'green', 'purple']
+    };
+    
+    // Seleccionar un grupo aleatorio
+    const groupKeys = Object.keys(colorGroups);
+    const selectedGroupKey = groupKeys[Math.floor(Math.random() * groupKeys.length)];
+    const selectedGroup = colorGroups[selectedGroupKey];
+    
+    // Para neutros, usar solo un color para mayor consistencia
+    // Para otros grupos, permitir variación dentro del grupo
+    let colorsToUse;
+    if (selectedGroupKey === 'neutral') {
+        // Neutros: elegir solo uno
+        colorsToUse = [selectedGroup[Math.floor(Math.random() * selectedGroup.length)]];
+    } else {
+        // Cálidos o fríos: usar todos del grupo
+        colorsToUse = selectedGroup;
+    }
+    
+    try {
+        // Obtener pokémons de los colores seleccionados
+        const allFilteredPokemons = [];
+        
+        for (const color of colorsToUse) {
+            const response = await fetch(`https://pokeapi.co/api/v2/pokemon-color/${color}`);
+            const data = await response.json();
+            
+            // Filtrar por generaciones seleccionadas
+            const filteredPokemons = data.pokemon_species.filter(species => {
+                const id = parseInt(species.url.split('/').slice(-2, -1)[0]);
+                return generations.some(gen => {
+                    const range = genRanges[gen];
+                    return id >= range[0] && id <= range[1];
+                });
+            });
+            
+            allFilteredPokemons.push(...filteredPokemons);
+        }
+        
+        if (allFilteredPokemons.length === 0) {
+            throw new Error('No se encontraron pokémons con esos criterios');
+        }
+        
+        // Seleccionar pokémons aleatorios de los colores similares
+        const pokemonDataList = [];
+        const uniquePokemons = new Set();
+        
+        while (pokemonDataList.length < count && uniquePokemons.size < allFilteredPokemons.length) {
+            const randomPokemon = allFilteredPokemons[Math.floor(Math.random() * allFilteredPokemons.length)];
+            const id = parseInt(randomPokemon.url.split('/').slice(-2, -1)[0]);
+            
+            if (!uniquePokemons.has(id)) {
+                uniquePokemons.add(id);
+                try {
+                    const pokemonData = await loadRandomPokemon(id);
+                    pokemonDataList.push(pokemonData);
+                } catch (error) {
+                    console.error(`Error al cargar pokémon ${id}:`, error);
+                }
+            }
+        }
+        
+        return pokemonDataList;
+    } catch (error) {
+        console.error('Error al obtener pokémons por similitud de color:', error);
+        // Fallback: usar el método anterior
+        const promises = [];
+        for (let i = 0; i < count; i++) {
+            promises.push(loadRandomPokemon(null, generations));
+        }
+        return await Promise.all(promises);
+    }
+}
+
 function getMatchingColors(bgColor) {
     // Convertir hex a RGB
     const hex = bgColor.replace('#', '');
@@ -184,18 +267,18 @@ async function suggestColorsFromPokemons(pokemonDataList, pastelColors) {
         };
     }
 
-    // Mapeo de colores de Pokémon a colores pastel
+    // Mapeo de colores de Pokémon a colores pastel (actualizado con tonos oscuros)
     const colorMapping = {
-        'black': ['#E0BBE4', '#C7CEEA', '#D5E1DF', '#E5D9F2'],
-        'blue': ['#BAE1FF', '#C8E7ED', '#C9E4E7', '#E6F3FF'],
-        'brown': ['#FFDFBA', '#FFD6BA', '#F7E7CE', '#FFF5E4'],
-        'gray': ['#D4F1F4', '#D5E1DF', '#E8F3D6', '#F0FFF0'],
-        'green': ['#BAFFC9', '#B8E0D2', '#D6E9CA', '#E8F3D6'],
-        'pink': ['#FFB3BA', '#FFC8DD', '#FADCE7', '#FFE5EC'],
-        'purple': ['#E0BBE4', '#E7C6FF', '#E5D9F2', '#FFEEF8'],
-        'red': ['#FFB3BA', '#FFDFD3', '#FFD6BA', '#FADCE7'],
-        'white': ['#FFFFBA', '#D4F1F4', '#FFF0F5', '#F0FFF0'],
-        'yellow': ['#FFFFBA', '#FFDFBA', '#FFF5E4', '#FFE5EC']
+        'black': ['#E0BBE4', '#C7CEEA', '#D5E1DF', '#E5D9F2', '#A8A9AD', '#9B9B9B', '#8D7B6B'],
+        'blue': ['#BAE1FF', '#C8E7ED', '#C9E4E7', '#E6F3FF', '#C7CEEA'],
+        'brown': ['#FFDFBA', '#FFD6BA', '#F7E7CE', '#FFF5E4', '#9D8B7C', '#B89F91', '#C4B5A0', '#A89988', '#D1C2B0', '#A68F7E', '#BFA993'],
+        'gray': ['#D4F1F4', '#D5E1DF', '#E8F3D6', '#F0FFF0', '#A8A9AD', '#9B9B9B', '#B8B8B8', '#8E8E93', '#C4C4C4', '#D1CFC8', '#C7C5B8'],
+        'green': ['#BAFFC9', '#B8E0D2', '#D6E9CA', '#E8F3D6', '#A39E93', '#D4D2C5'],
+        'pink': ['#FFB3BA', '#FFC8DD', '#FADCE7', '#FFE5EC', '#EAC4D5', '#F8E8EE'],
+        'purple': ['#E0BBE4', '#E7C6FF', '#E5D9F2', '#FFEEF8', '#C7CEEA'],
+        'red': ['#FFB3BA', '#FFDFD3', '#FFD6BA', '#FADCE7', '#EAC4D5'],
+        'white': ['#FFFFBA', '#D4F1F4', '#FFF0F5', '#F0FFF0', '#FFF5E4', '#D1CFC8', '#C7C5B8', '#D4D2C5'],
+        'yellow': ['#FFFFBA', '#FFDFBA', '#FFF5E4', '#FFE5EC', '#F7E7CE']
     };
 
     // Elegir el color más común entre los Pokémon

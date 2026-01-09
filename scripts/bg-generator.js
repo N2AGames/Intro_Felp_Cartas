@@ -12,14 +12,20 @@ class BackgroundGenerator {
         this.pendingPokemonUpdate = false; // Indica si hay cambios pendientes de Pokémon
         this.isGenerating = false; // Evitar regeneraciones simultáneas
         
-        // Paleta de colores pastel
+        // Paleta de colores pastel (expandida con tonos oscuros)
         this.pastelColors = [
+            // Colores claros originales
             '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
             '#E0BBE4', '#FFDFD3', '#D4F1F4', '#FFC8DD', '#C8E7ED',
             '#E7C6FF', '#C7CEEA', '#B8E0D2', '#FFD6BA', '#EAC4D5',
             '#D6E9CA', '#F7E7CE', '#C9E4E7', '#FADCE7', '#FFE5EC',
             '#FFF5E4', '#E8F3D6', '#D5E1DF', '#FFDEE9', '#E5D9F2',
-            '#F8E8EE', '#FFF0F5', '#E6F3FF', '#FFEEF8', '#F0FFF0'
+            '#F8E8EE', '#FFF0F5', '#E6F3FF', '#FFEEF8', '#F0FFF0',
+            // Colores oscuros pasteles (negros, grises, marrones)
+            '#A8A9AD', '#9B9B9B', '#B8B8B8', '#8E8E93', '#C4C4C4',
+            '#D1CFC8', '#C7C5B8', '#B5B3A8', '#A39E93', '#D4D2C5',
+            '#9D8B7C', '#B89F91', '#C4B5A0', '#A89988', '#D1C2B0',
+            '#8D7B6B', '#A68F7E', '#BFA993', '#94836F', '#C9B8A3'
         ];
         
         // Configuración del usuario
@@ -1326,12 +1332,8 @@ class BackgroundGenerator {
             );
             pokemonDataList = pokemonDataList.filter(data => data !== null);
         } else {
-            // Cargar pokémons aleatorios según las generaciones seleccionadas
-            const promises = [];
-            for (let i = 0; i < this.config.pokemonCount; i++) {
-                promises.push(loadRandomPokemon(null, this.config.generations));
-            }
-            pokemonDataList = await Promise.all(promises);
+            // Cargar pokémons aleatorios con colores similares según las generaciones seleccionadas
+            pokemonDataList = await getPokemonsByColorSimilarity(this.config.generations, this.config.pokemonCount);
         }
 
         // Si no se ha seleccionado un color, sugerir uno basado en los Pokémon
