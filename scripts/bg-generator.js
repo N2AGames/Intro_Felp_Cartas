@@ -10,6 +10,7 @@ class BackgroundGenerator {
         this.loadedImages = []; // Almacenar imágenes cargadas para redibujado rápido
         this.debounceTimeout = null; // Para optimizar el rendimiento
         this.pendingPokemonUpdate = false; // Indica si hay cambios pendientes de Pokémon
+        this.isGenerating = false; // Evitar regeneraciones simultáneas
         
         // Paleta de colores pastel
         this.pastelColors = [
@@ -1155,6 +1156,12 @@ class BackgroundGenerator {
     }
 
     async generateBackground() {
+        // Evitar generaciones simultáneas
+        if (this.isGenerating) {
+            return;
+        }
+        
+        this.isGenerating = true;
         // Mostrar spinner
         this.showSpinner();
         
@@ -1170,6 +1177,7 @@ class BackgroundGenerator {
         } finally {
             // Ocultar spinner siempre, incluso si hay error
             this.hideSpinner();
+            this.isGenerating = false;
         }
     }
 
@@ -1210,6 +1218,11 @@ class BackgroundGenerator {
     }
 
     async renderBackground() {
+        // Validación adicional por seguridad
+        if (this.isGenerating === false) {
+            return;
+        }
+        
         // Obtener pokémons según el modo
         let pokemonDataList;
         if (this.config.pokemonMode === 'manual' && this.config.selectedPokemonList.length > 0) {
