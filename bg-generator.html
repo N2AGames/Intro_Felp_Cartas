@@ -20,6 +20,7 @@
     <div class="side-menu" id="side-menu">
         <h2>Configuración</h2>
         
+        <div class="menu-scrollable-content">
         <!-- Acordeón 1: Fondo -->
         <div class="accordion">
             <button class="accordion-header">
@@ -32,6 +33,7 @@
                     <select id="bg-type">
                         <option value="solid">Sólido</option>
                         <option value="gradient">Degradado</option>
+                        <option value="pixel-art">Pixel Art</option>
                     </select>
                 </div>
                 <div class="menu-section" id="solid-color-section">
@@ -43,6 +45,10 @@
                     <div class="color-palette" id="gradient-color1-palette"></div>
                     <label>Color 2:</label>
                     <div class="color-palette" id="gradient-color2-palette"></div>
+                </div>
+                <div class="menu-section hidden" id="pixel-art-section">
+                    <label>Color Base:</label>
+                    <div class="color-palette" id="pixel-art-color-palette"></div>
                 </div>
             </div>
         </div>
@@ -104,7 +110,7 @@
                 </div>
                 <div class="menu-section" id="border-settings">
                     <label for="border-width">Grosor: <span id="border-width-value">3</span>%</label>
-                    <input type="range" id="border-width" min="1" max="8" step="0.5" value="3">
+                    <input type="range" id="border-width" min="1" max="3" step="0.5" value="3">
                     
                     <label>Color del Contorno:</label>
                     <div style="margin: 8px 0;">
@@ -174,6 +180,14 @@
                     </div>
                 </div>
                 <div class="menu-section">
+                    <label>Estilo de Arte:</label>
+                    <select id="art-style">
+                        <option value="pixel-art">Pixel Art</option>
+                        <option value="smooth" selected>Arte Oficial (Smooth)</option>
+                        <option value="mystery-dungeon">Mundo Misterioso</option>
+                    </select>
+                </div>
+                <div class="menu-section">
                     <label>
                         <input type="checkbox" id="allow-shiny">
                         Permitir Shiny
@@ -203,6 +217,7 @@
                     <button id="preset-window" class="preset-btn">Tamaño Ventana</button>
                 </div>
             </div>
+        </div>
         </div>
         
         <div class="action-buttons">

@@ -29,6 +29,7 @@ class BackgroundGenerator {
             bgColor: null,
             gradientColor1: null,
             gradientColor2: null,
+            pixelArtColor: null,
             userSelectedColor: false,
             sizeMode: 'fixed',
             imageSize: 150,
@@ -40,6 +41,7 @@ class BackgroundGenerator {
             pokemonNames: [],
             selectedPokemonList: [], // Nueva lista para los Pokémon seleccionados manualmente
             allowShiny: false,
+            artStyle: 'smooth', // 'pixel-art' o 'smooth'
             generations: [1, 2, 3, 4, 5, 6, 7, 8, 9],
             canvasWidth: 1920,
             canvasHeight: 1080,
@@ -74,22 +76,16 @@ class BackgroundGenerator {
         document.body.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         
-        // Desactivar suavizado de imágenes para pixel art nítido
-        this.ctx.imageSmoothingEnabled = false;
-        this.ctx.mozImageSmoothingEnabled = false;
-        this.ctx.webkitImageSmoothingEnabled = false;
-        this.ctx.msImageSmoothingEnabled = false;
+        // Configurar suavizado inicial
+        this.updateCanvasSmoothing();
         
         // Ajustar canvas al redimensionar ventana
         window.addEventListener('resize', () => {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             
-            // Reactivar desactivación de suavizado después de redimensionar
-            this.ctx.imageSmoothingEnabled = false;
-            this.ctx.mozImageSmoothingEnabled = false;
-            this.ctx.webkitImageSmoothingEnabled = false;
-            this.ctx.msImageSmoothingEnabled = false;
+            // Reactivar configuración de suavizado después de redimensionar
+            this.updateCanvasSmoothing();
             
             this.generateBackground();
         });
@@ -189,6 +185,26 @@ class BackgroundGenerator {
             });
             gradient2Palette.appendChild(colorBtn);
         });
+
+        // Crear paleta para pixel art color
+        const pixelArtPalette = document.getElementById('pixel-art-color-palette');
+        this.pastelColors.forEach(color => {
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'color-option';
+            colorBtn.style.backgroundColor = color;
+            colorBtn.dataset.color = color;
+            colorBtn.addEventListener('click', () => {
+                pixelArtPalette.querySelectorAll('.color-option').forEach(btn => 
+                    btn.classList.remove('selected')
+                );
+                colorBtn.classList.add('selected');
+                this.config.pixelArtColor = color;
+                this.config.userSelectedColor = true;
+                // Actualizar solo el fondo en tiempo real
+                this.updateBackgroundOnly();
+            });
+            pixelArtPalette.appendChild(colorBtn);
+        });
     }
 
     setupMenu() {
@@ -199,8 +215,11 @@ class BackgroundGenerator {
         document.getElementById('bg-type').addEventListener('change', (e) => {
             this.config.bgType = e.target.value;
             const isSolid = e.target.value === 'solid';
+            const isGradient = e.target.value === 'gradient';
+            const isPixelArt = e.target.value === 'pixel-art';
             document.getElementById('solid-color-section').classList.toggle('hidden', !isSolid);
-            document.getElementById('gradient-section').classList.toggle('hidden', isSolid);
+            document.getElementById('gradient-section').classList.toggle('hidden', !isGradient);
+            document.getElementById('pixel-art-section').classList.toggle('hidden', !isPixelArt);
             // Actualizar solo el fondo en tiempo real
             this.updateBackgroundOnly();
         });
@@ -324,6 +343,13 @@ class BackgroundGenerator {
             this.pendingPokemonUpdate = true;
         });
 
+        // Selector de estilo de arte
+        document.getElementById('art-style').addEventListener('change', (e) => {
+            this.config.artStyle = e.target.value;
+            this.updateCanvasSmoothing();
+            this.pendingPokemonUpdate = true;
+        });
+
         // === DIMENSIONES ===
         const widthInput = document.getElementById('canvas-width');
         const widthValue = document.getElementById('width-value');
@@ -398,12 +424,14 @@ class BackgroundGenerator {
         if (this.config.bgType === 'solid') {
             this.ctx.fillStyle = this.config.bgColor;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        } else {
+        } else if (this.config.bgType === 'gradient') {
             const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
             gradient.addColorStop(0, this.config.gradientColor1);
             gradient.addColorStop(1, this.config.gradientColor2);
             this.ctx.fillStyle = gradient;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else if (this.config.bgType === 'pixel-art') {
+            this.drawPixelArtBackground(this.config.pixelArtColor);
         }
 
         // Redibujar patrón con las imágenes ya cargadas
@@ -432,6 +460,53 @@ class BackgroundGenerator {
             ? this.config.imageSize 
             : (this.config.sizeMin + this.config.sizeMax) / 2;
         this.patternSize = baseSize / this.config.pokemonDensity;
+    }
+
+    updateCanvasSmoothing() {
+        const enableSmoothing = this.config.artStyle === 'smooth';
+        this.ctx.imageSmoothingEnabled = enableSmoothing;
+        this.ctx.mozImageSmoothingEnabled = enableSmoothing;
+        this.ctx.webkitImageSmoothingEnabled = enableSmoothing;
+        this.ctx.msImageSmoothingEnabled = enableSmoothing;
+        if (enableSmoothing) {
+            this.ctx.imageSmoothingQuality = 'high';
+        }
+    }
+
+    // Generar variaciones de color para el efecto pixel art
+    generateColorVariations(baseColor, count = 4) {
+        // Convertir hex a RGB
+        const r = parseInt(baseColor.slice(1, 3), 16);
+        const g = parseInt(baseColor.slice(3, 5), 16);
+        const b = parseInt(baseColor.slice(5, 7), 16);
+        
+        const variations = [];
+        for (let i = 0; i < count; i++) {
+            const factor = 0.85 + (i / (count - 1)) * 0.3; // Rango de 0.85 a 1.15
+            const newR = Math.min(255, Math.round(r * factor));
+            const newG = Math.min(255, Math.round(g * factor));
+            const newB = Math.min(255, Math.round(b * factor));
+            variations.push(`rgb(${newR}, ${newG}, ${newB})`);
+        }
+        return variations;
+    }
+
+    // Dibujar fondo con efecto pixel art
+    drawPixelArtBackground(baseColor) {
+        const pixelSize = 4; // Tamaño de cada pixel
+        const colors = this.generateColorVariations(baseColor, 4);
+        
+        const cols = Math.ceil(this.canvas.width / pixelSize);
+        const rows = Math.ceil(this.canvas.height / pixelSize);
+        
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                // Patrón alternado con variaciones de color
+                const colorIndex = ((row % 2) + (col % 2)) % colors.length;
+                this.ctx.fillStyle = colors[colorIndex];
+                this.ctx.fillRect(col * pixelSize, row * pixelSize, pixelSize, pixelSize);
+            }
+        }
     }
 
     // === NUEVOS MÉTODOS PARA COMPONENTES ===
@@ -788,20 +863,23 @@ class BackgroundGenerator {
 
         if (this.config.enableBorder) {
             // Determinar color del borde
-            let invertValue = this.config.borderColorMode === 'white' ? 100 : 0;
-            
+            const borderColor = this.config.borderColorMode === 'white' ? 'white' : 'black';
             const borderWidth = Math.max(1, size * (this.config.borderWidth / 100));
             const opacity = this.config.borderOpacity / 100;
             
-            // Calcular tamaño escalado para el contorno
-            const borderSize = size + (borderWidth * 2);
-            
-            // Dibujar silueta escalada, centrada
-            this.ctx.filter = `brightness(0) saturate(100%) invert(${invertValue}%) sepia(100%) saturate(0%)`;
+            // Método mejorado: dibujar la imagen múltiples veces desplazada
+            // para crear un contorno uniforme en todas direcciones
             this.ctx.globalAlpha = opacity;
-            this.ctx.globalCompositeOperation = 'source-over';
-            // La silueta se centra en (0,0) con -borderSize/2 en ambos ejes
-            this.ctx.drawImage(img, -borderSize / 2, -borderSize / 2, borderSize, borderSize);
+            this.ctx.filter = `brightness(0) saturate(100%) invert(${this.config.borderColorMode === 'white' ? 100 : 0}%) sepia(100%) saturate(0%)`;
+            
+            // Más direcciones para grosores grandes = contorno más suave
+            const directions = this.config.borderWidth <= 3 ? 8 : 16;
+            for (let i = 0; i < directions; i++) {
+                const angle = (Math.PI * 2 * i) / directions;
+                const offsetX = Math.cos(angle) * borderWidth;
+                const offsetY = Math.sin(angle) * borderWidth;
+                this.ctx.drawImage(img, -size / 2 + offsetX, -size / 2 + offsetY, size, size);
+            }
         }
         
         // Dibujar imagen principal sin filtros, también centrada en (0,0)
@@ -824,19 +902,17 @@ class BackgroundGenerator {
                 const img = images[imgIndex];
                 const x = col * this.patternSize;
                 const y = row * this.patternSize;
-                const offsetX = (Math.random() - 0.5) * 20;
-                const offsetY = (Math.random() - 0.5) * 20;
 
                 // Calcular tamaño según el modo
                 let size;
                 if (this.config.sizeMode === 'fixed') {
-                    size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                    size = this.config.imageSize;
                 } else {
                     size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                 }
 
-                const centerX = x + this.patternSize / 2 + offsetX;
-                const centerY = y + this.patternSize / 2 + offsetY;
+                const centerX = x + this.patternSize / 2;
+                const centerY = y + this.patternSize / 2;
                 this.drawImageWithBorder(img, centerX, centerY, size);
             }
         }
@@ -914,7 +990,7 @@ class BackgroundGenerator {
 
                 let size;
                 if (this.config.sizeMode === 'fixed') {
-                    size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                    size = this.config.imageSize;
                 } else {
                     size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                 }
@@ -944,7 +1020,7 @@ class BackgroundGenerator {
                 if (x < this.canvas.width + diagonalSpacing && y < this.canvas.height + diagonalSpacing) {
                     let size;
                     if (this.config.sizeMode === 'fixed') {
-                        size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                        size = this.config.imageSize;
                     } else {
                         size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                     }
@@ -972,7 +1048,7 @@ class BackgroundGenerator {
 
                 let size;
                 if (this.config.sizeMode === 'fixed') {
-                    size = this.config.imageSize * (0.8 + Math.random() * 0.4);
+                    size = this.config.imageSize;
                 } else {
                     size = this.config.sizeMin + Math.random() * (this.config.sizeMax - this.config.sizeMin);
                 }
@@ -1111,11 +1187,15 @@ class BackgroundGenerator {
             downloadCanvas.height = this.config.canvasHeight;
             const downloadCtx = downloadCanvas.getContext('2d');
 
-            // Desactivar suavizado también en el canvas de descarga
-            downloadCtx.imageSmoothingEnabled = false;
-            downloadCtx.mozImageSmoothingEnabled = false;
-            downloadCtx.webkitImageSmoothingEnabled = false;
-            downloadCtx.msImageSmoothingEnabled = false;
+            // Aplicar configuración de suavizado al canvas de descarga
+            const enableSmoothing = this.config.artStyle === 'smooth';
+            downloadCtx.imageSmoothingEnabled = enableSmoothing;
+            downloadCtx.mozImageSmoothingEnabled = enableSmoothing;
+            downloadCtx.webkitImageSmoothingEnabled = enableSmoothing;
+            downloadCtx.msImageSmoothingEnabled = enableSmoothing;
+            if (enableSmoothing) {
+                downloadCtx.imageSmoothingQuality = 'high';
+            }
 
             // Guardar el canvas y contexto originales
             const originalCanvas = this.canvas;
@@ -1129,12 +1209,14 @@ class BackgroundGenerator {
             if (this.config.bgType === 'solid') {
                 this.ctx.fillStyle = this.config.bgColor;
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            } else {
+            } else if (this.config.bgType === 'gradient') {
                 const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
                 gradient.addColorStop(0, this.config.gradientColor1);
                 gradient.addColorStop(1, this.config.gradientColor2);
                 this.ctx.fillStyle = gradient;
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            } else if (this.config.bgType === 'pixel-art') {
+                this.drawPixelArtBackground(this.config.pixelArtColor);
             }
 
             // Dibujar el mismo patrón con las imágenes ya cargadas
@@ -1215,6 +1297,18 @@ class BackgroundGenerator {
                 }
             });
         }
+        
+        // Actualizar color pixel art
+        if (this.config.bgType === 'pixel-art' && this.config.pixelArtColor) {
+            const pixelArtPalette = document.getElementById('pixel-art-color-palette');
+            pixelArtPalette.querySelectorAll('.color-option').forEach(btn => {
+                if (btn.dataset.color === this.config.pixelArtColor) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
     }
 
     async renderBackground() {
@@ -1246,11 +1340,13 @@ class BackgroundGenerator {
             
             if (this.config.bgType === 'solid') {
                 this.config.bgColor = colorSuggestion.suggested;
-            } else {
+            } else if (this.config.bgType === 'gradient') {
                 // Para degradado, usar el color sugerido y otro aleatorio de la paleta
                 this.config.gradientColor1 = colorSuggestion.suggested;
                 const otherColors = colorSuggestion.alternatives.filter(c => c !== colorSuggestion.suggested);
                 this.config.gradientColor2 = otherColors[Math.floor(Math.random() * otherColors.length)];
+            } else if (this.config.bgType === 'pixel-art') {
+                this.config.pixelArtColor = colorSuggestion.suggested;
             }
         }
 
@@ -1258,12 +1354,14 @@ class BackgroundGenerator {
         if (this.config.bgType === 'solid') {
             this.ctx.fillStyle = this.config.bgColor;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        } else {
+        } else if (this.config.bgType === 'gradient') {
             const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
             gradient.addColorStop(0, this.config.gradientColor1);
             gradient.addColorStop(1, this.config.gradientColor2);
             this.ctx.fillStyle = gradient;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else if (this.config.bgType === 'pixel-art') {
+            this.drawPixelArtBackground(this.config.pixelArtColor);
         }
 
         // Filtrar pokémons que se cargaron correctamente y cargar sus imágenes
@@ -1272,9 +1370,26 @@ class BackgroundGenerator {
             validPokemons.map(pokemonData => {
                 // Determinar si será shiny
                 const isShiny = this.config.allowShiny && Math.random() < 0.1; // 10% probabilidad
-                const imageUrl = isShiny && pokemonData.sprites.front_shiny
-                    ? pokemonData.sprites.front_shiny
-                    : pokemonData.sprites.front_default;
+                
+                let imageUrl;
+                if (this.config.artStyle === 'smooth') {
+                    // Usar arte oficial de alta calidad
+                    imageUrl = isShiny && pokemonData.sprites.other?.['official-artwork']?.front_shiny
+                        ? pokemonData.sprites.other['official-artwork'].front_shiny
+                        : pokemonData.sprites.other?.['official-artwork']?.front_default || pokemonData.sprites.front_default;
+                } else if (this.config.artStyle === 'mystery-dungeon') {
+                    // Usar sprites de Mystery Dungeon (PMDCollab)
+                    const pokemonId = pokemonData.id;
+                    const formattedId = String(pokemonId).padStart(4, '0');
+                    const shinyFolder = isShiny ? 'Shiny' : 'Normal';
+                    imageUrl = `https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/${formattedId}/${shinyFolder}.png`;
+                } else {
+                    // Usar sprites pixel art
+                    imageUrl = isShiny && pokemonData.sprites.front_shiny
+                        ? pokemonData.sprites.front_shiny
+                        : pokemonData.sprites.front_default;
+                }
+                
                 return this.loadImage(imageUrl);
             })
         );
