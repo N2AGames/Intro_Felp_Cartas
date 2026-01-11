@@ -115,8 +115,6 @@ body {
     line-height: 1;
     cursor: pointer;
     display: none;
-    align-items: center;
-    justify-content: center;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
@@ -748,11 +746,13 @@ canvas {
     /* Mostrar botón de cerrar solo en móvil */
     .close-menu-btn {
         display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     /* Ajustar el título para dar espacio al botón */
     .side-menu h2 {
-        padding-right: 50px;
+        padding-right: 55px; /* 40px button width + 15px spacing */
     }
     
     /* Asegurar que los botones de acción siempre sean visibles */
