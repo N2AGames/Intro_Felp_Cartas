@@ -114,6 +114,15 @@ class BackgroundGenerator {
             sideMenu.classList.toggle('open');
         });
 
+        // Botón de cerrar menú (móvil)
+        const closeBtn = document.getElementById('close-menu');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sideMenu.classList.remove('open');
+            });
+        }
+
         // Cerrar menú al hacer clic fuera
         document.addEventListener('click', (e) => {
             if (sideMenu.classList.contains('open') && 
