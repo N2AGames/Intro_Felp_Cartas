@@ -699,3 +699,56 @@ canvas {
     image-rendering: crisp-edges;
     -ms-interpolation-mode: nearest-neighbor;
 }
+
+/* Responsive: Mobile Portrait */
+@media screen and (max-width: 768px) {
+    .side-menu {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .side-menu.open {
+        right: 0;
+        left: 0;
+    }
+    
+    /* Asegurar que los botones de acción siempre sean visibles */
+    .action-buttons {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Ajustar el contenido scrolleable para que no tape los botones */
+    .menu-scrollable-content {
+        padding-bottom: 10px;
+        max-height: calc(100vh - 180px); /* Ajustar según altura de header + botones */
+    }
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    /* En portrait, asegurar que el menú use todo el espacio disponible */
+    .side-menu {
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height para móviles */
+    }
+    
+    /* Reducir padding en móvil para más espacio */
+    .menu-scrollable-content {
+        padding: 0 15px;
+    }
+    
+    .side-menu h2 {
+        margin: 15px 15px 10px 15px;
+        font-size: 18px;
+    }
+    
+    /* Hacer los botones más grandes y táctiles en móvil */
+    .action-btn {
+        padding: 14px;
+        font-size: 15px;
+        min-height: 48px; /* Tamaño mínimo recomendado para táctil */
+    }
+}
