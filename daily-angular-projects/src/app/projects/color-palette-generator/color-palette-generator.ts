@@ -37,6 +37,8 @@ export class ColorPaletteGenerator {
       setTimeout(() => {
         this.copiedIndex = null;
       }, 2000);
+    }).catch(() => {
+      alert('No se pudo copiar al portapapeles. Por favor, copia manualmente: ' + color);
     });
   }
 }

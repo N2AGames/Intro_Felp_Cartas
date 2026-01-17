@@ -43,8 +43,6 @@ export class CalculatorApp {
   }
 
   performOperation(nextOperator: string) {
-    const inputValue = parseFloat(this.currentValue);
-
     if (this.previousValue === null) {
       this.previousValue = this.currentValue;
     } else if (this.operator) {
@@ -63,6 +61,14 @@ export class CalculatorApp {
           result = previousVal * currentVal;
           break;
         case '/':
+          if (currentVal === 0) {
+            this.display = 'Error';
+            this.currentValue = '0';
+            this.operator = null;
+            this.previousValue = null;
+            this.waitingForOperand = false;
+            return;
+          }
           result = previousVal / currentVal;
           break;
       }
