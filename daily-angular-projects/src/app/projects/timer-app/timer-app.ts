@@ -13,13 +13,13 @@ export class TimerApp implements OnDestroy {
   
   stopwatchTime = 0;
   stopwatchRunning = false;
-  stopwatchInterval: any = null;
+  stopwatchInterval: number | null = null;
 
   countdownMinutes = 1;
   countdownSeconds = 0;
   countdownTime = 60;
   countdownRunning = false;
-  countdownInterval: any = null;
+  countdownInterval: number | null = null;
 
   get stopwatchDisplay(): string {
     const minutes = Math.floor(this.stopwatchTime / 60);
