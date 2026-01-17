@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachBgControls(); // desde bg-control.js
     attachPatternControls(); // desde pattern-bg-control.js
     initSmokeShader(); // desde smoke-shader.js
+    initInkShader(); // desde ink-shader.js
     initStarsShader(); // desde stars-shader.js
 
     // Sincronizar visibilidad del mazo con la orientación (solo en portrait)

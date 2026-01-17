@@ -11,6 +11,7 @@
     <div id="pattern-layer" aria-hidden="true"></div>
     <canvas id="stars-canvas" aria-hidden="true"></canvas>
     <canvas id="smoke-canvas" aria-hidden="true"></canvas>
+    <canvas id="ink-canvas" aria-hidden="true"></canvas>
     <div class="c-1">
         <button id="toggle-chanel-info" class="toggle-button">☰</button>
         <div class="chanel-info" style="display: none;">
@@ -91,6 +92,40 @@
                 </div>
             </div>
 
+            <div class="control-panel" id="ink-panel">
+                <h3>Efecto Tintas</h3>
+                <div class="control-row">
+                    <label for="ink-toggle">Activo</label>
+                    <input type="checkbox" id="ink-toggle" />
+                </div>
+                <div class="control-row">
+                    <label for="ink-speed">Velocidad</label>
+                    <input type="range" id="ink-speed" min="0.05" max="1.0" step="0.01" value="0.3" />
+                    <span id="ink-speed-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="ink-opacity">Opacidad</label>
+                    <input type="range" id="ink-opacity" min="0" max="1" step="0.01" value="0.6" />
+                    <span id="ink-opacity-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="ink-scale">Escala</label>
+                    <input type="range" id="ink-scale" min="1" max="5" step="0.1" value="2.5" />
+                    <span id="ink-scale-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="ink-color1">Color Tinta 1</label>
+                    <input type="color" id="ink-color1" value="#8b3a8f" />
+                </div>
+                <div class="control-row">
+                    <label for="ink-color2">Color Tinta 2</label>
+                    <input type="color" id="ink-color2" value="#1e5a8e" />
+                </div>
+                <div>
+                    <button id="ink-reset" class="button">Restablecer</button>
+                </div>
+            </div>
+
             <div class="control-panel" id="pattern-panel">
                 <h3>Patrón de Fondo</h3>
                 <div class="control-row">
@@ -161,6 +196,7 @@
     </audio>
     <script src="scripts/ui.js"></script>
     <script src="scripts/smoke-shader.js"></script>
+    <script src="scripts/ink-shader.js"></script>
     <script src="scripts/stars-shader.js"></script>
     <script src="scripts/pattern-bg-control.js"></script>
     <script src="scripts/bg-control.js"></script>

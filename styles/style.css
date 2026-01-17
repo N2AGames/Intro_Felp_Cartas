@@ -493,6 +493,16 @@ img { max-width: 100%; height: auto; }
     pointer-events: none;
 }
 
+#ink-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Entre smoke y pattern */
+    pointer-events: none;
+}
+
 .control-panel {
     color: #fff;
     padding: clamp(1vmin, 2vw, 1.2vmin);
