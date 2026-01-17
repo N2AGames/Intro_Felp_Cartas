@@ -1,7 +1,7 @@
 function initSmokeShader() {
     // --- CONFIGURACIÓN DEL HUMO ---
     let defaults = {
-        active: true,
+        active: false,
         speed: 0.15,
         opacity: 0.5
     };
@@ -69,17 +69,32 @@ function initSmokeShader() {
         float pixel_size = length(u_resolution.xy) / 700.0;
         vec2 uv = (floor(screen_coords.xy * (1.0 / pixel_size)) * pixel_size - 0.5 * u_resolution.xy) / length(u_resolution.xy);
         
-        uv *= 15.0;
+        // Calcular distancia y ángulo desde el centro para crear espiral
+        float dist = length(uv);
+        float angle = atan(uv.y, uv.x);
         float t = u_time * u_speed;
-        vec2 uv2 = vec2(uv.x + uv.y);
+        
+        // Crear rotación espiral basada en la distancia al centro
+        float spiralRotation = dist * 3.0 - t * 2.0;
+        float cosR = cos(spiralRotation);
+        float sinR = sin(spiralRotation);
+        
+        // Aplicar rotación espiral
+        vec2 rotatedUV = vec2(
+            uv.x * cosR - uv.y * sinR,
+            uv.x * sinR + uv.y * cosR
+        );
+        
+        rotatedUV *= 15.0;
+        vec2 uv2 = vec2(rotatedUV.x + rotatedUV.y);
 
         for(int i=0; i < 8; i++) {
-            uv2 += sin(max(uv.x, uv.y)) + uv;
-            uv += 0.5 * vec2(cos(5.11 + 0.35 * uv2.y + t), sin(uv2.x - 0.11 * t));
-            uv -= 1.0 * cos(uv.x + uv.y) - 1.0 * sin(uv.x * 0.7 - uv.y);
+            uv2 += sin(max(rotatedUV.x, rotatedUV.y)) + rotatedUV;
+            rotatedUV += 0.5 * vec2(cos(5.11 + 0.35 * uv2.y + t), sin(uv2.x - 0.11 * t));
+            rotatedUV -= 1.0 * cos(rotatedUV.x + rotatedUV.y) - 1.0 * sin(rotatedUV.x * 0.7 - rotatedUV.y);
         }
 
-        float intensity = min(1.0, max(0.0, length(uv) * 0.02));
+        float intensity = min(1.0, max(0.0, length(rotatedUV) * 0.02));
         float alpha = smoothstep(0.1, 0.8, intensity) * u_opacity;
         gl_FragColor = vec4(vec3(intensity * 0.7), alpha);
     }`;

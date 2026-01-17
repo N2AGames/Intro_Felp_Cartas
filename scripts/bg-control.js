@@ -39,3 +39,31 @@ function attachBgControls(){
         });
     });
 }
+
+function setBgColor(color) {
+    const colorBtns = document.querySelectorAll('.color-btn');
+    document.body.style.backgroundColor = color;
+    colorBtns.forEach(b => {
+        debugger;
+        if (b.dataset.color === color) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
+    });
+    saveToSessionStorage('bgColor', color);
+}
+
+function disableColors() {
+    const bgPanel = document.getElementById('bg-panel');
+    if (bgPanel) {
+        bgPanel.style.display = 'none';
+    }
+}
+
+function enableColors() {
+    const bgPanel = document.getElementById('bg-panel');
+    if (bgPanel) {
+        bgPanel.style.display = '';
+    }
+}

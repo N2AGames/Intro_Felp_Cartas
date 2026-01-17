@@ -72,12 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    // Init background & pattern controls (si existen)
+    // Init bg and pattern controls
     attachBgControls(); // desde bg-control.js
     attachPatternControls(); // desde pattern-bg-control.js
+
+
+    // Init shaders
     initSmokeShader(); // desde smoke-shader.js
     initInkShader(); // desde ink-shader.js
     initStarsShader(); // desde stars-shader.js
+    initBalatroShader(); // desde balatro-shader.js
 
     // Sincronizar visibilidad del mazo con la orientación (solo en portrait)
     function syncDeckVisibilityWithOrientation(){
