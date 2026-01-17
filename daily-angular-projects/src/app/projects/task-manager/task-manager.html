@@ -1,0 +1,71 @@
+<div class="task-manager">
+  <div class="header">
+    <h2>📝 Gestor de Tareas</h2>
+    <p class="subtitle">Organiza tu día de manera eficiente</p>
+  </div>
+
+  <div class="add-task-section">
+    <input 
+      type="text" 
+      [(ngModel)]="newTaskTitle" 
+      (keyup.enter)="addTask()"
+      placeholder="Nueva tarea..."
+      class="task-input">
+    
+    <select [(ngModel)]="newTaskPriority" class="priority-select">
+      <option value="low">Baja</option>
+      <option value="medium">Media</option>
+      <option value="high">Alta</option>
+    </select>
+    
+    <button (click)="addTask()" class="add-btn">Agregar</button>
+  </div>
+
+  <div class="filters">
+    <button 
+      [class.active]="filter === 'all'" 
+      (click)="filter = 'all'"
+      class="filter-btn">
+      Todas
+    </button>
+    <button 
+      [class.active]="filter === 'active'" 
+      (click)="filter = 'active'"
+      class="filter-btn">
+      Activas ({{ activeCount }})
+    </button>
+    <button 
+      [class.active]="filter === 'completed'" 
+      (click)="filter = 'completed'"
+      class="filter-btn">
+      Completadas
+    </button>
+  </div>
+
+  <div class="tasks-list">
+    <div *ngIf="filteredTasks.length === 0" class="empty-state">
+      <p>No hay tareas {{ filter === 'all' ? '' : filter === 'active' ? 'activas' : 'completadas' }}</p>
+    </div>
+    
+    <div 
+      *ngFor="let task of filteredTasks" 
+      class="task-item"
+      [class.completed]="task.completed"
+      [class.priority-high]="task.priority === 'high'"
+      [class.priority-medium]="task.priority === 'medium'"
+      [class.priority-low]="task.priority === 'low'">
+      
+      <input 
+        type="checkbox" 
+        [checked]="task.completed"
+        (change)="toggleTask(task)"
+        class="task-checkbox">
+      
+      <span class="task-title">{{ task.title }}</span>
+      
+      <span class="priority-badge">{{ task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja' }}</span>
+      
+      <button (click)="deleteTask(task.id)" class="delete-btn">🗑️</button>
+    </div>
+  </div>
+</div>

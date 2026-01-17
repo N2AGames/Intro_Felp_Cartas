@@ -1,0 +1,67 @@
+<div class="notes-app">
+  <div class="header">
+    <h2>📝 Aplicación de Notas</h2>
+    <p class="subtitle">Organiza tus ideas y pensamientos</p>
+    <button (click)="toggleAddForm()" class="add-note-btn">
+      {{ showAddForm ? '✕ Cancelar' : '➕ Nueva Nota' }}
+    </button>
+  </div>
+
+  <div *ngIf="showAddForm" class="note-form">
+    <input 
+      type="text" 
+      [(ngModel)]="newNoteTitle" 
+      placeholder="Título de la nota..."
+      class="note-input title-input">
+    
+    <textarea 
+      [(ngModel)]="newNoteContent" 
+      placeholder="Escribe tu nota aquí..."
+      class="note-textarea"
+      rows="4"></textarea>
+    
+    <div class="form-actions">
+      <button (click)="addNote()" class="save-btn">💾 Guardar</button>
+      <button (click)="resetForm()" class="cancel-btn">Cancelar</button>
+    </div>
+  </div>
+
+  <div *ngIf="editingNote" class="note-form editing">
+    <input 
+      type="text" 
+      [(ngModel)]="editingNote.title" 
+      placeholder="Título de la nota..."
+      class="note-input title-input">
+    
+    <textarea 
+      [(ngModel)]="editingNote.content" 
+      placeholder="Escribe tu nota aquí..."
+      class="note-textarea"
+      rows="4"></textarea>
+    
+    <div class="form-actions">
+      <button (click)="saveEdit()" class="save-btn">💾 Guardar Cambios</button>
+      <button (click)="cancelEdit()" class="cancel-btn">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="notes-grid" *ngIf="notes.length > 0">
+    <div *ngFor="let note of notes" class="note-card">
+      <div class="note-header">
+        <h3 class="note-title">{{ note.title }}</h3>
+        <span class="note-date">{{ formatDate(note.createdAt) }}</span>
+      </div>
+      
+      <p class="note-content">{{ note.content }}</p>
+      
+      <div class="note-actions">
+        <button (click)="startEdit(note)" class="edit-btn">✏️ Editar</button>
+        <button (click)="deleteNote(note.id)" class="delete-btn">🗑️ Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="notes.length === 0 && !showAddForm" class="empty-state">
+    <p>📋 No hay notas. ¡Crea tu primera nota!</p>
+  </div>
+</div>

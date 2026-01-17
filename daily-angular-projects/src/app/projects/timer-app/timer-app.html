@@ -1,0 +1,90 @@
+<div class="timer-app">
+  <div class="header">
+    <h2>⏱️ Aplicación de Temporizador</h2>
+    <p class="subtitle">Cronómetro y cuenta regresiva</p>
+  </div>
+
+  <div class="mode-selector">
+    <button 
+      [class.active]="mode === 'stopwatch'" 
+      (click)="mode = 'stopwatch'"
+      class="mode-btn">
+      Cronómetro
+    </button>
+    <button 
+      [class.active]="mode === 'countdown'" 
+      (click)="mode = 'countdown'"
+      class="mode-btn">
+      Cuenta Regresiva
+    </button>
+  </div>
+
+  <div *ngIf="mode === 'stopwatch'" class="timer-section">
+    <div class="timer-display">{{ stopwatchDisplay }}</div>
+    
+    <div class="controls">
+      <button 
+        *ngIf="!stopwatchRunning" 
+        (click)="startStopwatch()" 
+        class="control-btn start-btn">
+        ▶️ Iniciar
+      </button>
+      <button 
+        *ngIf="stopwatchRunning" 
+        (click)="stopStopwatch()" 
+        class="control-btn stop-btn">
+        ⏸️ Pausar
+      </button>
+      <button 
+        (click)="resetStopwatch()" 
+        class="control-btn reset-btn">
+        🔄 Reiniciar
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="mode === 'countdown'" class="timer-section">
+    <div class="timer-display">{{ countdownDisplay }}</div>
+    
+    <div class="countdown-inputs" *ngIf="!countdownRunning">
+      <div class="input-group">
+        <label>Minutos</label>
+        <input 
+          type="number" 
+          [(ngModel)]="countdownMinutes" 
+          (change)="setCountdownTime()"
+          min="0" 
+          max="99">
+      </div>
+      <div class="input-group">
+        <label>Segundos</label>
+        <input 
+          type="number" 
+          [(ngModel)]="countdownSeconds" 
+          (change)="setCountdownTime()"
+          min="0" 
+          max="59">
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button 
+        *ngIf="!countdownRunning" 
+        (click)="startCountdown()" 
+        class="control-btn start-btn">
+        ▶️ Iniciar
+      </button>
+      <button 
+        *ngIf="countdownRunning" 
+        (click)="stopCountdown()" 
+        class="control-btn stop-btn">
+        ⏸️ Pausar
+      </button>
+      <button 
+        (click)="resetCountdown()" 
+        class="control-btn reset-btn">
+        🔄 Reiniciar
+      </button>
+    </div>
+  </div>
+</div>

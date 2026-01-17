@@ -1,0 +1,34 @@
+<div class="calculator-app">
+  <div class="header">
+    <h2>🔢 Calculadora</h2>
+    <p class="subtitle">Calculadora básica con operaciones esenciales</p>
+  </div>
+
+  <div class="calculator">
+    <div class="display">{{ display }}</div>
+    
+    <div class="buttons">
+      <button (click)="clear()" class="btn btn-function span-2">C</button>
+      <button (click)="performOperation('/')" class="btn btn-operator">/</button>
+      <button (click)="performOperation('*')" class="btn btn-operator">×</button>
+      
+      <button (click)="inputDigit('7')" class="btn">7</button>
+      <button (click)="inputDigit('8')" class="btn">8</button>
+      <button (click)="inputDigit('9')" class="btn">9</button>
+      <button (click)="performOperation('-')" class="btn btn-operator">−</button>
+      
+      <button (click)="inputDigit('4')" class="btn">4</button>
+      <button (click)="inputDigit('5')" class="btn">5</button>
+      <button (click)="inputDigit('6')" class="btn">6</button>
+      <button (click)="performOperation('+')" class="btn btn-operator">+</button>
+      
+      <button (click)="inputDigit('1')" class="btn">1</button>
+      <button (click)="inputDigit('2')" class="btn">2</button>
+      <button (click)="inputDigit('3')" class="btn">3</button>
+      <button (click)="calculate()" class="btn btn-equals span-row-2">=</button>
+      
+      <button (click)="inputDigit('0')" class="btn span-2">0</button>
+      <button (click)="inputDecimal()" class="btn">.</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="color-palette-generator">
+  <div class="header">
+    <h2>🎨 Generador de Paletas de Colores</h2>
+    <p class="subtitle">Crea paletas de colores hermosas al instante</p>
+    <button (click)="generatePalette()" class="generate-btn">✨ Generar Nueva Paleta</button>
+  </div>
+
+  <div class="palette-container">
+    <div 
+      *ngFor="let color of colors; let i = index" 
+      class="color-card"
+      [style.background-color]="color"
+      (click)="copyToClipboard(color, i)">
+      
+      <div class="color-info">
+        <div class="color-hex">{{ color }}</div>
+        <div class="copy-hint" [class.copied]="copiedIndex === i">
+          {{ copiedIndex === i ? '✓ Copiado!' : '📋 Click para copiar' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <p>💡 Haz click en cualquier color para copiar su código hexadecimal</p>
+  </div>
+</div>

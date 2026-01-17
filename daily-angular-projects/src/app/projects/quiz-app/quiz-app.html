@@ -1,0 +1,60 @@
+<div class="quiz-app">
+  <div class="header">
+    <h2>🎯 Quiz de Conocimientos</h2>
+    <p class="subtitle">Pon a prueba tus conocimientos</p>
+  </div>
+
+  <div *ngIf="!showResult" class="quiz-container">
+    <div class="progress-bar">
+      <div class="progress" [style.width.%]="(currentQuestionIndex / questions.length) * 100"></div>
+    </div>
+    
+    <div class="question-counter">
+      Pregunta {{ currentQuestionIndex + 1 }} de {{ questions.length }}
+    </div>
+
+    <div class="question-card">
+      <h3 class="question">{{ currentQuestion.question }}</h3>
+      
+      <div class="options">
+        <button 
+          *ngFor="let option of currentQuestion.options; let i = index"
+          (click)="selectAnswer(i)"
+          [disabled]="selectedAnswer !== null"
+          [class.correct]="isCorrectAnswer(i)"
+          [class.wrong]="isWrongAnswer(i)"
+          class="option-btn">
+          {{ option }}
+        </button>
+      </div>
+
+      <button 
+        *ngIf="selectedAnswer !== null"
+        (click)="nextQuestion()"
+        class="next-btn">
+        {{ currentQuestionIndex < questions.length - 1 ? 'Siguiente' : 'Ver Resultados' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="showResult" class="result-container">
+    <div class="result-card">
+      <h2>¡Quiz Completado!</h2>
+      <div class="score-display">
+        <div class="score-circle">
+          <span class="score-number">{{ score }}/{{ questions.length }}</span>
+        </div>
+      </div>
+      <p class="score-percentage">{{ (score / questions.length * 100) | number:'1.0-0' }}% correcto</p>
+      
+      <div class="result-message">
+        <p *ngIf="score === questions.length">¡Perfecto! 🎉</p>
+        <p *ngIf="score >= questions.length * 0.7 && score < questions.length">¡Muy bien! 🌟</p>
+        <p *ngIf="score >= questions.length * 0.5 && score < questions.length * 0.7">¡Buen trabajo! 👍</p>
+        <p *ngIf="score < questions.length * 0.5">Sigue practicando 💪</p>
+      </div>
+
+      <button (click)="restartQuiz()" class="restart-btn">Volver a Intentar</button>
+    </div>
+  </div>
+</div>

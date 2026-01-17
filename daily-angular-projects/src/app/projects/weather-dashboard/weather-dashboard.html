@@ -1,0 +1,29 @@
+<div class="weather-dashboard">
+  <div class="header">
+    <h2>🌍 Panel Meteorológico</h2>
+    <p class="subtitle">Condiciones climáticas en tiempo real</p>
+    <button (click)="refreshWeather()" class="refresh-btn">🔄 Actualizar</button>
+  </div>
+
+  <div class="weather-grid">
+    <div *ngFor="let weather of cities" class="weather-card">
+      <div class="city-name">{{ weather.city }}</div>
+      <div class="weather-icon">{{ weather.icon }}</div>
+      <div class="temperature">{{ weather.temperature }}°C</div>
+      <div class="condition">{{ weather.condition }}</div>
+      
+      <div class="weather-details">
+        <div class="detail">
+          <span class="detail-icon">💧</span>
+          <span class="detail-label">Humedad</span>
+          <span class="detail-value">{{ weather.humidity }}%</span>
+        </div>
+        <div class="detail">
+          <span class="detail-icon">💨</span>
+          <span class="detail-label">Viento</span>
+          <span class="detail-value">{{ weather.windSpeed }} km/h</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
