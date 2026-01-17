@@ -1,4 +1,7 @@
-function initSmokeShader() {
+let smokeShaderInitialized = false;
+let smokeSettings = null;
+
+function setupSmokeControls() {
     // --- CONFIGURACIÓN DEL HUMO ---
     let defaults = {
         active: false,
@@ -6,15 +9,11 @@ function initSmokeShader() {
         opacity: 0.5
     };
 
-    let smokeSettings = getFromSessionStorage('smokeSettings');
+    smokeSettings = getFromSessionStorage('smokeSettings');
     if (!smokeSettings) {
         smokeSettings = defaults;
     }
     saveToSessionStorage('smokeSettings', smokeSettings);
-
-    // Referencias y listeners
-    const smokeCanvas = document.getElementById('smoke-canvas');
-    const gl = smokeCanvas.getContext('webgl');
 
     const sToggle = document.getElementById('smoke-toggle');
     const sSpeed = document.getElementById('smoke-speed');
@@ -33,6 +32,11 @@ function initSmokeShader() {
     sToggle.onchange = (e) => {
         smokeSettings.active = e.target.checked;
         saveToSessionStorage('smokeSettings', smokeSettings);
+        
+        // Inicializar shader si se activa y aún no está inicializado
+        if (e.target.checked && !smokeShaderInitialized) {
+            initSmokeShader();
+        }
     };
     sSpeed.oninput = (e) => {
         smokeSettings.speed = parseFloat(e.target.value);
@@ -50,7 +54,25 @@ function initSmokeShader() {
         sSpeed.value = 0.15; sSpeedVal.innerText = 0.15;
         sOpacity.value = 0.5; sOpacityVal.innerText = 0.5;
         saveToSessionStorage('smokeSettings', smokeSettings);
+        
+        // Inicializar shader si aún no está inicializado
+        if (!smokeShaderInitialized) {
+            initSmokeShader();
+        }
     };
+
+    if(smokeSettings.active && !smokeShaderInitialized) {
+        initSmokeShader();
+    }
+}
+
+function initSmokeShader() {
+    if (smokeShaderInitialized) return;
+    smokeShaderInitialized = true;
+
+    // Referencias y listeners
+    const smokeCanvas = document.getElementById('smoke-canvas');
+    const gl = smokeCanvas.getContext('webgl');
 
     // --- SHADERS ---
     const vs = `attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;

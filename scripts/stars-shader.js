@@ -1,5 +1,51 @@
 // --------- Stars background (canvas + particles) ---------
+let starsShaderInitialized = false;
+let starsShaderInstance = null;
+
+function setupStarsControls() {
+    const defaults = {
+        enabled: false,
+        count: Math.min(600, Math.max(600, Math.floor((window.innerWidth*window.innerHeight)/60000))),
+        size: 10,
+        twinkle: 1.3,
+        brightness: 1.8,
+        hue: 40
+    };
+
+    let starsConfig = getFromSessionStorage('starsSettings');
+    if (!starsConfig) {
+        starsConfig = defaults;
+    }
+    saveToSessionStorage('starsSettings', starsConfig);
+
+    const toggle = document.getElementById('stars-toggle');
+    if (toggle) {
+        toggle.checked = starsConfig.enabled;
+        toggle.onchange = (e) => {
+            starsConfig.enabled = e.target.checked;
+            saveToSessionStorage('starsSettings', starsConfig);
+            
+            if (e.target.checked && !starsShaderInitialized) {
+                initStarsShader();
+            } else if (starsShaderInstance) {
+                if (e.target.checked) {
+                    starsShaderInstance.start();
+                } else {
+                    starsShaderInstance.stop();
+                }
+            }
+        };
+    }
+
+    if(starsConfig.enabled && !starsShaderInitialized) {
+        initStarsShader();
+    }
+}
+
 function initStarsShader() {
+    if (starsShaderInitialized) return;
+    starsShaderInitialized = true;
+
     const canvas = document.getElementById('stars-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -8,6 +54,7 @@ function initStarsShader() {
     let W = 0, H = 0;
 
     const defaults = {
+        enabled: true,
         count: Math.min(600, Math.max(600, Math.floor((window.innerWidth*window.innerHeight)/60000))),
         size: 10,
         twinkle: 1.3,
@@ -166,6 +213,7 @@ function initStarsShader() {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachStarControls); else attachStarControls();
     window.addEventListener('resize', () => { resize(); initStars(); });
 
-    // Expose API
-    window.startStars = start; window.stopStars = stop; window.setStarOptions = setOptions; window.getStarOptions = getOptions; window.stars = { start, stop, setOptions, getOptions };
+    // Expose API and instance
+    starsShaderInstance = { start, stop, setOptions, getOptions };
+    window.startStars = start; window.stopStars = stop; window.setStarOptions = setOptions; window.getStarOptions = getOptions; window.stars = starsShaderInstance;
 }

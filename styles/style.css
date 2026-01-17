@@ -208,6 +208,8 @@ body {
     width: clamp(10vh, 10vw, 18vmin);
     aspect-ratio: 2 / 3;
     perspective: 60vmin;
+    -webkit-perspective: 60vmin;
+    -moz-perspective: 60vmin;
     /* Aplicamos la sombra aquí usando filter (unidades relativas) */
     filter: drop-shadow(0 1.2vmin 1vmin rgba(0,0,0,0.5));
 }  
@@ -218,6 +220,8 @@ body {
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 }
 
 /* Animación cuando se añade la clase .is-flipped */
@@ -249,11 +253,15 @@ body {
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
     background: transparent !important; /* Asegura que no haya fondo sólido */
 }
 
 .card-back {
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
     position: relative;
     overflow: hidden;
     /* Usamos la variable definida en JS para el fondo */

@@ -77,11 +77,24 @@ document.addEventListener('DOMContentLoaded', () => {
     attachPatternControls(); // desde pattern-bg-control.js
 
 
-    // Init shaders
-    initSmokeShader(); // desde smoke-shader.js
-    initInkShader(); // desde ink-shader.js
-    initStarsShader(); // desde stars-shader.js
-    initBalatroShader(); // desde balatro-shader.js
+    // Init shaders solo si están activos en sessionStorage
+    const smokeSettings = getFromSessionStorage('smokeSettings');
+    if (smokeSettings && smokeSettings.active) initSmokeShader();
+    
+    const inkSettings = getFromSessionStorage('inkSettings');
+    if (inkSettings && inkSettings.active) initInkShader();
+    
+    const starsSettings = getFromSessionStorage('starsSettings');
+    if (starsSettings && starsSettings.enabled) initStarsShader();
+    
+    const balatroSettings = getFromSessionStorage('balatroSettings');
+    if (balatroSettings && balatroSettings.active) initBalatroShader();
+
+    // Configurar los controles de los shaders (sin inicializar WebGL)
+    setupSmokeControls();
+    setupInkControls();
+    setupStarsControls();
+    setupBalatroControls();
 
     // Sincronizar visibilidad del mazo con la orientación (solo en portrait)
     function syncDeckVisibilityWithOrientation(){

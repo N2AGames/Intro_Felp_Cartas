@@ -1,23 +1,22 @@
-function initInkShader() {
+let inkShaderInitialized = false;
+let inkSettings = null;
+
+function setupInkControls() {
     // --- CONFIGURACIÓN DE TINTAS ---
     let defaults = {
         active: false,
-        speed: 0.3,
-        opacity: 0.6,
-        scale: 2.5,
+        speed: 0.5,
+        opacity: 1,
+        scale: 5,
         color1: '#8b3a8f',
         color2: '#1e5a8e'
     };
 
-    let inkSettings = getFromSessionStorage('inkSettings');
+    inkSettings = getFromSessionStorage('inkSettings');
     if (!inkSettings) {
         inkSettings = defaults;
     }
     saveToSessionStorage('inkSettings', inkSettings);
-
-    // Referencias y listeners
-    const inkCanvas = document.getElementById('ink-canvas');
-    const gl = inkCanvas.getContext('webgl');
 
     const iToggle = document.getElementById('ink-toggle');
     const iSpeed = document.getElementById('ink-speed');
@@ -44,6 +43,12 @@ function initInkShader() {
     iToggle.onchange = (e) => {
         inkSettings.active = e.target.checked;
         saveToSessionStorage('inkSettings', inkSettings);
+        
+        // Inicializar shader si se activa y aún no está inicializado
+        if (e.target.checked && !inkShaderInitialized) {
+            initInkShader();
+            setBgColor('#ffffffff'); // Fondo blanco para mejor visibilidad
+        }
     };
     iSpeed.oninput = (e) => {
         inkSettings.speed = parseFloat(e.target.value);
@@ -69,6 +74,14 @@ function initInkShader() {
         saveToSessionStorage('inkSettings', inkSettings);
     };
     document.getElementById('ink-reset').onclick = () => {
+        let defaults = {
+            active: false,
+            speed: 0.3,
+            opacity: 0.6,
+            scale: 2.5,
+            color1: '#8b3a8f',
+            color2: '#1e5a8e'
+        };
         inkSettings = { ...defaults };
         iToggle.checked = defaults.active;
         iSpeed.value = defaults.speed; iSpeedVal.innerText = defaults.speed;
@@ -78,6 +91,20 @@ function initInkShader() {
         iColor2.value = defaults.color2;
         saveToSessionStorage('inkSettings', inkSettings);
     };
+
+    if(inkSettings.active && !inkShaderInitialized) {
+        initInkShader();
+        setBgColor('#ffffffff'); // Fondo blanco para mejor visibilidad
+    }
+}
+
+function initInkShader() {
+    if (inkShaderInitialized) return;
+    inkShaderInitialized = true;
+
+    // Referencias y listeners
+    const inkCanvas = document.getElementById('ink-canvas');
+    const gl = inkCanvas.getContext('webgl');
 
     // --- SHADERS ---
     const vs = `attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;

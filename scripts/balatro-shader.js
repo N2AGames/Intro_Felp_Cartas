@@ -1,4 +1,7 @@
-function initBalatroShader() {
+let balatroShaderInitialized = false;
+let balatroSettings = null;
+
+function setupBalatroControls() {
     // --- CONFIGURACIÓN DEL BALATRO SHADER ---
     let defaults = {
         active: true,
@@ -8,21 +11,11 @@ function initBalatroShader() {
         colorShift: 0.7
     };
 
-    let balatroSettings = getFromSessionStorage('balatroSettings');
+    balatroSettings = getFromSessionStorage('balatroSettings');
     if (!balatroSettings) {
         balatroSettings = defaults;
     }
     saveToSessionStorage('balatroSettings', balatroSettings);
-
-    if(balatroSettings.active) {
-        // Cambiar fondo a azul oscuro
-        setBgColor('#0f3460');
-        disableColors();
-    }
-
-    // Referencias y listeners
-    const balatroCanvas = document.getElementById('balatro-canvas');
-    const gl = balatroCanvas.getContext('webgl');
 
     const bToggle = document.getElementById('balatro-toggle');
     const bSpeed = document.getElementById('balatro-speed');
@@ -51,9 +44,12 @@ function initBalatroShader() {
         saveToSessionStorage('balatroSettings', balatroSettings);
         
         if (e.target.checked) {
-            // Cambiar fondo a blanco
-            setBgColor('#0f3460');
             disableColors();
+            
+            // Inicializar shader si aún no está inicializado
+            if (!balatroShaderInitialized) {
+                initBalatroShader();
+            }
         } else {
             enableColors();
         }
@@ -86,7 +82,26 @@ function initBalatroShader() {
         bDistortion.value = 1.0; bDistortionVal.innerText = 1.0;
         bColorShift.value = 0.0; bColorShiftVal.innerText = 0.0;
         saveToSessionStorage('balatroSettings', balatroSettings);
+        
+        // Inicializar shader si aún no está inicializado
+        if (!balatroShaderInitialized) {
+            initBalatroShader();
+        }
     };
+
+    if(balatroSettings.active && !balatroShaderInitialized) {
+        disableColors();
+        initBalatroShader();
+    }
+}
+
+function initBalatroShader() {
+    if (balatroShaderInitialized) return;
+    balatroShaderInitialized = true;
+
+    // Referencias y listeners
+    const balatroCanvas = document.getElementById('balatro-canvas');
+    const gl = balatroCanvas.getContext('webgl');
 
     // --- SHADERS ---
     const vs = `attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
