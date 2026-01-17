@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+daily-angular-projects/node_modules/
+
+# Angular build output
+daily-angular-projects/dist/
+daily-angular-projects/.angular/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

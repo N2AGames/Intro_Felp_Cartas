@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { ProjectSelector } from './components/project-selector/project-selector';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [ProjectSelector],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('daily-angular-projects');
+  title = 'Proyectos Angular Diarios';
 }
