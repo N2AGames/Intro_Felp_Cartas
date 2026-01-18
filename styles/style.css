@@ -96,7 +96,7 @@ body {
         z-index: 9999999 !important; /* forzar por encima de las cartas */
         transform: translateZ(0); /* crea un nuevo contexto y ayuda con el apilamiento */
         pointer-events: auto;
-        background: rgba(10, 3, 43, 0.9); /* un poco más opaco en móvil */
+        background: rgba(10, 3, 43, 0.95); /* más opaco en móvil */
         overflow-y: scroll; /* Forzar scroll vertical siempre visible */
         overflow-x: hidden; /* Evitar scroll horizontal */
         -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
@@ -116,18 +116,35 @@ body {
     }
 
     .toggle-button {
-        width: clamp(10vmin, 20vw, 10vmin) !important;
-        height: clamp(10vmin, 20vw, 10vmin) !important;
+        width: clamp(12vmin, 20vw, 15vmin) !important;
+        height: clamp(12vmin, 20vw, 15vmin) !important;
+        font-size: clamp(4vmin, 6vw, 5vmin) !important;
     }
 
     .mute-button {
-        width: clamp(10vmin, 20vw, 10vmin) !important;
-        height: clamp(10vmin, 20vw, 10vmin) !important;
+        width: clamp(12vmin, 20vw, 15vmin) !important;
+        height: clamp(12vmin, 20vw, 15vmin) !important;
+        font-size: clamp(4vmin, 6vw, 5vmin) !important;
     }
 
     /* Logo más pequeño en orientación vertical */
+    .title-logo {
+        margin-top: 5vmin;
+    }
+    
     .title-logo img {
-        max-height: 15vh;
+        max-height: 12vh;
+    }
+    
+    /* Ajustar controles en portrait */
+    .control-panel h3 {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
+    
+    .color-picker-custom {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
     }
 }
 
@@ -156,6 +173,9 @@ body {
     flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 }
  
 
@@ -169,6 +189,9 @@ body {
     width: auto;
     row-gap: clamp(6vmin, 10vw, 12vmin);
     box-sizing: border-box;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 } 
 
 .title-logo {
@@ -197,6 +220,9 @@ body {
     gap: clamp(0.5vmin, 3vw, 6vmin);
     align-self: center; /* Centrado vertical dentro de .pres-container */
     margin-block: auto; /* Empuja arriba y abajo para quedar en el centro vertical */
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 } 
 
 /* Clase aplicada desde JS para ocultar las cartas cuando el panel está abierto */
@@ -212,6 +238,9 @@ body {
     -moz-perspective: 60vmin;
     /* Aplicamos la sombra aquí usando filter (unidades relativas) */
     filter: drop-shadow(0 1.2vmin 1vmin rgba(0,0,0,0.5));
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 }  
 
 /* La carta base */
@@ -250,12 +279,17 @@ body {
 
 .card-face {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     -moz-backface-visibility: hidden;
     background: transparent !important; /* Asegura que no haya fondo sólido */
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
 }
 
 .card-back {
@@ -458,13 +492,41 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 800px) {
     /* Aumentar tamaño de cartas en pantallas pequeñas manteniendo proporción */
     .card-container { width: clamp(14vmin, 28vw, 26vmin); aspect-ratio: 2 / 3; }
+    
+    .pres-container {
+        padding: clamp(2vh, 3vw, 4vmin);
+        row-gap: clamp(3vmin, 6vw, 8vmin);
+    }
+    
+    .deck-container {
+        gap: clamp(1vmin, 2vw, 4vmin);
+    }
+    
+    /* Ajustar texto en tablets */
+    .text-display {
+        font-size: clamp(0.4rem, 1.5vw, 0.55rem);
+    }
 }
 
 @media (max-width: 480px) {
-    .title-logo { max-height: 5vmin; }
+    .title-logo { 
+        max-height: 8vmin;
+        margin-top: 5vmin;
+    }
+    
+    .title-logo img {
+        max-height: 20vh;
+    }
+    
     .chanel-placeholder { font-size: clamp(0.8vmin, 2.6vw, 1vmin); }
+    
     /* Cartas más grandes en pantallas muy pequeñas */
     .card-container { width: clamp(18vmin, 44vw, 34vmin); aspect-ratio: 2 / 3; }
+    
+    .pres-container {
+        padding: clamp(1.5vh, 2vw, 3vmin);
+        row-gap: clamp(2vmin, 4vw, 6vmin);
+    }
 }
 
 /* --------- Stars background canvas --------- */
@@ -665,6 +727,117 @@ img { max-width: 100%; height: auto; }
     #stars-canvas { opacity: 0.9; }
     .star-controls { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(4.5vmin, 8vw, 3rem); }
     .control-panel { padding: clamp(.8vmin, 1.6vw, 1vmin); margin-top: clamp(1.6vmin, 3vw, 1rem); }
+}
+
+/* Landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .title-logo {
+        max-height: 12vh;
+        margin-top: 2vh;
+    }
+    
+    .title-logo img {
+        max-height: 12vh;
+    }
+    
+    .pres-container {
+        padding: 2vh 2vw;
+        row-gap: 2vh;
+    }
+    
+    .deck-container {
+        gap: 1.5vmin;
+    }
+    
+    .card-container {
+        width: clamp(12vh, 15vw, 16vh);
+    }
+    
+    /* Ajustar texto en landscape */
+    .text-display {
+        font-size: clamp(0.35rem, 1.2vh, 0.45rem) !important;
+        line-height: 1.2;
+    }
+    
+    .name-box {
+        --name-edge-width: clamp(1vh, 2vw, 1.5vh);
+        --name-center-height: clamp(2vh, 3vw, 2.5vh);
+    }
+    
+    .promos-container {
+        margin-top: 1vh;
+        gap: 1rem;
+    }
+    
+    .promo-section {
+        margin-top: 1vh;
+        padding: 0.5rem;
+    }
+}
+
+/* Portrait en móviles */
+@media (max-width: 480px) and (orientation: portrait) {
+    .deck-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, auto);
+        gap: clamp(2vmin, 4vw, 4vmin);
+        max-width: 95vw;
+        justify-items: center;
+    }
+    
+    .card-container {
+        width: clamp(35vw, 40vw, 45vw);
+        max-width: 180px;
+    }
+    
+    /* Ajustar tamaño del texto del nombre en las cartas */
+    .text-display {
+        font-size: clamp(0.35rem, 2vw, 0.45rem) !important;
+        line-height: 1.3;
+        padding: 0 0.2rem;
+    }
+    
+    /* Ajustar la caja del nombre para que sea más flexible */
+    .name-box {
+        width: 85%;
+        max-width: 90%;
+        --name-edge-width: clamp(1vmin, 2.5vw, 2vmin);
+        --name-center-height: clamp(2vmin, 4vw, 2.5vmin);
+    }
+    
+    .name-center {
+        padding: 0 clamp(0.3vmin, 1vw, 0.8vmin);
+    }
+    
+    .promos-container {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .promo-section {
+        margin-top: 1rem;
+    }
+    
+    .pres-container {
+        row-gap: clamp(3vmin, 5vw, 6vmin);
+    }
+}
+
+/* Pantallas muy pequeñas portrait (menos de 360px) */
+@media (max-width: 360px) and (orientation: portrait) {
+    .card-container {
+        width: clamp(38vw, 42vw, 48vw);
+    }
+    
+    .text-display {
+        font-size: clamp(0.3rem, 1.8vw, 0.4rem) !important;
+    }
+    
+    .deck-container {
+        gap: clamp(1.5vmin, 3vw, 3vmin);
+    }
 }
 
 .promos-container {
