@@ -1,0 +1,691 @@
+/* ========================================
+   ESTILOS PRINCIPALES
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Reset */
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background-color: #37946e;
+    overflow: hidden;
+    overscroll-behavior: none;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    touch-action: pan-y pan-x;
+}  
+
+img { max-width: 100%; height: auto; }
+
+/* ========================================
+   PANEL LATERAL
+   ======================================== */
+
+.c-1 {
+    padding: 0 clamp(0.8vmin, 5vw, 6vmin);
+    position: relative;
+    z-index: 999999;
+    pointer-events: auto;
+}  
+
+.chanel-info {
+    background: rgba(10, 3, 43, 0.6);
+    width: 100%;
+    min-width: 20vw;
+    max-width: 20vw;
+    min-height: 100vh;
+    max-height: 100vh;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: clamp(1vmin, 2vw, 2vmin);
+    gap: clamp(1vmin, 2vw, 2vmin);
+    border-right: goldenrod 0.45vmin dashed;
+    border-left: goldenrod 0.45vmin dashed;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 999999;
+    pointer-events: auto;
+}
+
+.close-panel-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    background: rgba(255, 107, 107, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.close-panel-btn:hover {
+    background: rgba(255, 60, 60, 1);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.close-panel-btn:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.chanel-placeholder {
+    flex: 0 0 100vh;
+    height: 100vh;
+    width: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: clamp(1vmin, 3vw, 1.6vmin);
+    border: 0.35vmin dashed rgba(255,215,0,0.9);
+    border-radius: 1vmin;
+    padding: clamp(0.5vmin, 1.6vw, 1vmin);
+    text-align:center;
+    box-sizing: border-box;
+}
+
+/* ========================================
+   ÁREA PRINCIPAL
+   ======================================== */
+
+.main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+}
+
+.pres-container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(4vh, 5vw, 8vmin);
+    min-height: 100vh;
+    width: auto;
+    row-gap: clamp(6vmin, 10vw, 12vmin);
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+} 
+
+.title-logo {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height: auto;
+    max-height: 10vmin;
+    margin-top: 10vmin;
+}
+
+.title-logo img {
+    max-height: 30vh;
+    width: auto;
+    height: auto;
+    display:block;
+    object-fit: contain;
+    filter: drop-shadow(0 1.2vmin 1vmin rgba(0,0,0,0.5));
+}   
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+.mute-button,
+.toggle-button {
+    position: fixed;
+    top: clamp(0.8vmin, 2.5vw, 1.6vmin);
+    width: clamp(5vmin, 8vw, 4vmin);
+    height: clamp(5vmin, 8vw, 4vmin);
+    background: #555555;
+    border: 0.45vmin solid #fff;
+    border-radius: 1vmin;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10000000 !important;
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(1.6vmin, 3.5vw, 2.4vmin);
+    image-rendering: pixelated;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+.toggle-button {
+    left: clamp(2vmin, 4vw, 50vmin);
+}
+
+.mute-button {
+    right: clamp(0.8vmin, 2.5vw, 1.6vmin);
+}
+
+.mute-button.active,
+.toggle-button.active {
+    background: #2a7d3f;
+    border-color: #4caf50;
+    box-shadow: 0 0 1vmin #4caf50, 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.5);
+}
+
+.mute-button:hover,
+.toggle-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0.6vmin 1.2vmin rgba(0, 0, 0, 0.6);
+}
+
+.mute-button:active,
+.toggle-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0.2vmin 0.4vmin rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   CANVAS DE FONDO
+   ======================================== */
+
+#pattern-layer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+    opacity: 1;
+    mix-blend-mode: overlay;
+}
+
+#stars-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 1;
+}
+
+#smoke-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+}
+
+#ink-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+#balatro-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -3;
+    pointer-events: none;
+}
+
+.main, .c-1 {
+    position: relative;
+    z-index: 2;
+}
+
+/* ========================================
+   PANEL DE CONTROLES
+   ======================================== */
+
+.control-panel {
+    color: #fff;
+    padding: clamp(1vmin, 2vw, 1.2vmin);
+    margin-top: 0.6rem;
+    background: rgba(0,0,0,0.25);
+    border-radius: 0.6vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+    z-index: 1000000;
+    pointer-events: auto;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.75rem;
+    letter-spacing: 0.02rem;
+}
+
+#bg-panel h3 { margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #ffd36b; }
+#stars-panel h3 { margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #ffd36b; }
+#pattern-panel h3 { margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #8fe7ff; }
+#smoke-panel h3 { margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #b3d6ff; }
+
+.control-panel select, 
+.control-panel input[type=color] { 
+    width: 100%; 
+    height: 2.2rem; 
+    padding: 0.2rem; 
+    box-sizing: border-box; 
+    background: rgba(255,255,255,0.98); 
+    border-radius: 0.4rem; 
+    border: 2px solid #333; 
+    font-family: 'Press Start 2P', cursive; 
+    font-size: 0.75rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    position: relative;
+    z-index: 1000001;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateZ(0);
+}
+
+.control-panel select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.3rem center;
+    background-size: 1.2rem;
+    padding-right: 1.8rem;
+}
+
+.color-picker-custom {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.color-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1000001;
+    pointer-events: auto;
+}
+
+.color-btn:hover {
+    border-color: rgba(255, 215, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: goldenrod;
+    border-width: 4px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.pattern-picker-custom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.pattern-btn {
+    padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #333;
+    border-radius: 0.4rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #333;
+    position: relative;
+    z-index: 1000001;
+    pointer-events: auto;
+}
+
+.pattern-btn:hover {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: goldenrod;
+}
+
+.pattern-btn.active {
+    background: goldenrod;
+    border-color: #d4af37;
+    color: #000;
+    font-weight: bold;
+}
+
+.control-row{
+    display: grid;
+    grid-template-columns: 30% 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.control-row label{ 
+    width: auto; 
+    font-size: 0.72rem; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    padding-right: 0.2rem; 
+}
+
+.control-row input[type=range]{ 
+    width: 100%; 
+    min-width: 0; 
+    margin: 0; 
+}
+
+.control-value{ 
+    width: 3.2rem; 
+    text-align:right; 
+    font-size: 0.72rem; 
+    color: #fff; 
+    flex: 0 0 auto; 
+}
+
+.button{ 
+    background:#ffd36b; 
+    border:none; 
+    padding:0.5rem 0.8rem; 
+    border-radius:0.4rem; 
+    cursor:pointer; 
+    font-weight:600; 
+    font-family: 'Press Start 2P', cursive; 
+}
+
+.control-note{ 
+    color: rgba(255,255,255,0.8); 
+    font-size:0.68rem; 
+}
+
+/* ========================================
+   PROMOCIONES
+   ======================================== */
+
+.promos-container {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+}
+
+.promo-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(78, 205, 196, 0.1);
+    border-radius: 8px;
+    border: 2px solid rgba(78, 205, 196, 0.3);
+    text-align: center;
+    position: relative;
+}
+
+.close-promo-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 107, 107, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    margin: 0;
+}
+
+.close-promo-btn:hover {
+    background: rgba(255, 60, 60, 1);
+    transform: rotate(90deg) scale(1.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.close-promo-btn:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.promo-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.promo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.promo-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.beta-badge {
+    background: #ff6b6b;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.promo-note {
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (orientation: portrait) {
+    .chanel-info {
+        position: fixed !important;
+        inset: 0;
+        width: 100%;
+        min-width: unset;
+        max-width: none;
+        height: 100vh;
+        min-height: 100vh;
+        max-height: 100vh;
+        border-left: none;
+        border-right: none;
+        border-top: goldenrod 0.45vmin dashed;
+        border-bottom: goldenrod 0.45vmin dashed;
+        padding: clamp(2vmin, 4vw, 3vmin);
+        z-index: 9999999 !important;
+        transform: translateZ(0);
+        pointer-events: auto;
+        background: rgba(10, 3, 43, 0.95);
+        overflow-y: scroll;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+    }
+
+    .main {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .pres-container {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .toggle-button {
+        width: clamp(12vmin, 20vw, 15vmin) !important;
+        height: clamp(12vmin, 20vw, 15vmin) !important;
+        font-size: clamp(4vmin, 6vw, 5vmin) !important;
+    }
+
+    .mute-button {
+        width: clamp(12vmin, 20vw, 15vmin) !important;
+        height: clamp(12vmin, 20vw, 15vmin) !important;
+        font-size: clamp(4vmin, 6vw, 5vmin) !important;
+    }
+
+    .title-logo {
+        margin-top: 5vmin;
+    }
+    
+    .title-logo img {
+        max-height: 12vh;
+    }
+    
+    .control-panel h3 {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
+    
+    .color-picker-custom {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 800px) {
+    .pres-container {
+        padding: clamp(2vh, 3vw, 4vmin);
+        row-gap: clamp(3vmin, 6vw, 8vmin);
+    }
+}
+
+@media (max-width: 480px) {
+    .title-logo { 
+        max-height: 8vmin;
+        margin-top: 5vmin;
+    }
+    
+    .title-logo img {
+        max-height: 20vh;
+    }
+    
+    .chanel-placeholder { 
+        font-size: clamp(0.8vmin, 2.6vw, 1vmin); 
+    }
+    
+    .pres-container {
+        padding: clamp(1.5vh, 2vw, 3vmin);
+        row-gap: clamp(2vmin, 4vw, 6vmin);
+    }
+    
+    .control-row{ 
+        grid-template-columns: 40% 1fr auto; 
+    }
+}
+
+@media (max-width: 600px) {
+    #stars-canvas { opacity: 0.9; }
+    .star-controls { 
+        padding: clamp(.8vmin, 1.6vw, 1vmin); 
+        margin-top: clamp(4.5vmin, 8vw, 3rem); 
+    }
+    .control-panel { 
+        padding: clamp(.8vmin, 1.6vw, 1vmin); 
+        margin-top: clamp(1.6vmin, 3vw, 1rem); 
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .title-logo {
+        max-height: 12vh;
+        margin-top: 2vh;
+    }
+    
+    .title-logo img {
+        max-height: 12vh;
+    }
+    
+    .pres-container {
+        padding: 2vh 2vw;
+        row-gap: 2vh;
+    }
+    
+    .promos-container {
+        margin-top: 1vh;
+        gap: 1rem;
+    }
+    
+    .promo-section {
+        margin-top: 1vh;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    .promos-container {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .promo-section {
+        margin-top: 1rem;
+    }
+    
+    .pres-container {
+        row-gap: clamp(3vmin, 5vw, 6vmin);
+    }
+}
