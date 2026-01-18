@@ -14,6 +14,7 @@
     <canvas id="smoke-canvas" aria-hidden="true"></canvas>
     <canvas id="ink-canvas" aria-hidden="true"></canvas>
     <canvas id="balatro-canvas" aria-hidden="true"></canvas>
+    <canvas id="crt-canvas" aria-hidden="true"></canvas>
     <div class="c-1">
         <button id="toggle-chanel-info" class="toggle-button">☰</button>
         <div class="chanel-info" style="display: none;">
@@ -192,6 +193,53 @@
                 </div>
                 <small class="control-note">Efecto de plasma colorido tipo Balatro con ondas y distorsión.</small>
             </div>
+
+            <div class="control-panel" id="crt-panel">
+                <h3>Efecto TV Antigua (CRT)</h3>
+                <div class="control-row">
+                    <label for="crt-toggle">Activo</label>
+                    <input type="checkbox" id="crt-toggle" />
+                </div>
+                <div class="control-row">
+                    <label for="crt-scanlines">Líneas Escaneo</label>
+                    <input type="range" id="crt-scanlines" min="0" max="1" step="0.01" value="0.5" />
+                    <span id="crt-scanlines-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-distortion">Distorsión</label>
+                    <input type="range" id="crt-distortion" min="0" max="0.5" step="0.01" value="0.15" />
+                    <span id="crt-distortion-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-vignette">Viñeta</label>
+                    <input type="range" id="crt-vignette" min="0" max="1" step="0.01" value="0.4" />
+                    <span id="crt-vignette-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-noise">Ruido</label>
+                    <input type="range" id="crt-noise" min="0" max="0.3" step="0.01" value="0.08" />
+                    <span id="crt-noise-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-flicker">Parpadeo</label>
+                    <input type="range" id="crt-flicker" min="0" max="0.15" step="0.01" value="0.03" />
+                    <span id="crt-flicker-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-rgbshift">Desplaz. RGB</label>
+                    <input type="range" id="crt-rgbshift" min="0" max="0.01" step="0.0001" value="0.002" />
+                    <span id="crt-rgbshift-val" class="control-value"></span>
+                </div>
+                <div class="control-row">
+                    <label for="crt-brightness">Brillo</label>
+                    <input type="range" id="crt-brightness" min="0.5" max="1.5" step="0.01" value="1.0" />
+                    <span id="crt-brightness-val" class="control-value"></span>
+                </div>
+                <div>
+                    <button id="crt-reset" class="button">Restablecer</button>
+                </div>
+                <small class="control-note">Simula un televisor antiguo con líneas de escaneo, ruido y distorsión.</small>
+            </div>
         </div>
     </div>
     <div class="main">
@@ -234,6 +282,7 @@
     <script src="scripts/ink-shader.js"></script>
     <script src="scripts/stars-shader.js"></script>
     <script src="scripts/balatro-shader.js"></script>
+    <script src="scripts/crt-shader.js"></script>
     <script src="scripts/pattern-bg-control.js"></script>
     <script src="scripts/bg-control.js"></script>
     <script src="scripts/cards.js"></script>
