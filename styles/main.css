@@ -138,12 +138,12 @@ img { max-width: 100%; height: auto; }
     align-items:center;
     justify-content:center;
     height: auto;
-    max-height: 10vmin;
+    max-height: 15vmin;
     margin-top: 10vmin;
 }
 
 .title-logo img {
-    max-height: 30vh;
+    max-height: 50vh;
     width: auto;
     height: auto;
     display:block;
@@ -447,14 +447,13 @@ img { max-width: 100%; height: auto; }
    ======================================== */
 
 .promos-container {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     display: flex;
     flex-direction: row;
     gap: 1.5rem;
 }
 
 .promo-section {
-    margin-top: 2rem;
     padding: 1rem;
     background: rgba(78, 205, 196, 0.1);
     border-radius: 8px;
@@ -598,11 +597,11 @@ img { max-width: 100%; height: auto; }
     }
 
     .title-logo {
-        margin-top: 5vmin;
+        margin-top: 10vmin;
     }
     
     .title-logo img {
-        max-height: 12vh;
+        max-height: 15vh;
     }
     
     .control-panel h3 {
