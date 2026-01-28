@@ -81,18 +81,18 @@
                     </select>
                 </div>
                 <div class="menu-section" id="fixed-size-section">
-                    <label for="image-size">Tamaño: <span id="size-value">150</span>px</label>
-                    <input type="range" id="image-size" min="50" max="400" value="150">
+                    <label for="image-size">Tamaño: <span id="size-value">200</span>px</label>
+                    <input type="range" id="image-size" min="20" max="400" value="200">
                 </div>
                 <div class="menu-section hidden" id="range-size-section">
-                    <label for="size-min">Tamaño Mínimo: <span id="size-min-value">100</span>px</label>
-                    <input type="range" id="size-min" min="50" max="300" value="100">
+                    <label for="size-min">Tamaño Mínimo: <span id="size-min-value">200</span>px</label>
+                    <input type="range" id="size-min" min="20" max="300" value="200">
                     <label for="size-max">Tamaño Máximo: <span id="size-max-value">200</span>px</label>
-                    <input type="range" id="size-max" min="100" max="400" value="200">
+                    <input type="range" id="size-max" min="20" max="400" value="200">
                 </div>
                 <div class="menu-section">
-                    <label for="pokemon-density">Densidad: <span id="density-value">0.5</span></label>
-                    <input type="range" id="pokemon-density" min="0.5" max="1.0" step="0.1" value="0.5">
+                    <label for="pokemon-density">Densidad: <span id="density-value">1.0</span></label>
+                    <input type="range" id="pokemon-density" min="0.5" max="1.0" step="0.1" value="1.0">
                 </div>
             </div>
         </div>
@@ -160,15 +160,26 @@
         <!-- Acordeón 4: Pokémons -->
         <div class="accordion">
             <button class="accordion-header">
-                <span>⚡ Pokémons</span>
+                <span>⚡ Pokémons & Tipos</span>
                 <span class="accordion-icon">▼</span>
             </button>
             <div class="accordion-content">
+                <div class="menu-section">
+                    <label>Contenido del Patrón:</label>
+                    <select id="pattern-content">
+                        <option value="pokemon">Pokémons</option>
+                        <option value="types">Tipos de Pokémon</option>
+                    </select>
+                </div>
                 <div class="menu-section" id="pokemon-count-section">
                     <label for="pokemon-count">Pokémons Diferentes: <span id="pokemon-count-value">3</span></label>
                     <input type="range" id="pokemon-count" min="1" max="10" value="3">
                 </div>
-                <div class="menu-section">
+                <div class="menu-section" id="types-selection-section" style="display: none;">
+                    <label>Seleccionar Tipos:</label>
+                    <div class="types-grid" id="types-grid"></div>
+                </div>
+                <div class="menu-section" id="pokemon-mode-section">
                     <label>Modo de Selección:</label>
                     <select id="pokemon-mode">
                         <option value="random">Aleatorios</option>
@@ -206,7 +217,7 @@
                         <button class="gen-toggle-btn active" data-gen="9">9</button>
                     </div>
                 </div>
-                <div class="menu-section">
+                <div class="menu-section" id="art-style-section">
                     <label>Estilo de Arte:</label>
                     <select id="art-style">
                         <option value="pixel-art">Pixel Art</option>
@@ -214,7 +225,7 @@
                         <option value="mystery-dungeon">Mundo Misterioso</option>
                     </select>
                 </div>
-                <div class="menu-section">
+                <div class="menu-section" id="allow-shiny-section">
                     <label>
                         <input type="checkbox" id="allow-shiny">
                         Permitir Shiny
@@ -253,7 +264,8 @@
         </div>
     </div>
 
-    <script src="scripts/bg-generator.js"></script>
+    <script src="scripts/pokemon-types.js"></script>
     <script src="scripts/pokemon-data.js"></script>
+    <script src="scripts/bg-generator.js"></script>
 </body>
 </html>

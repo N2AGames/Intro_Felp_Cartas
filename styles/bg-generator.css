@@ -795,3 +795,36 @@ canvas {
         min-height: 48px; /* Tamaño mínimo recomendado para táctil */
     }
 }
+
+/* Estilos para selector de tipos */
+#types-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.type-toggle-btn {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 2px solid white;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.type-toggle-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.type-toggle-btn.active {
+    opacity: 1;
+}
+
+.type-toggle-btn:not(.active) {
+    opacity: 0.6;
+    border-color: transparent;
+}

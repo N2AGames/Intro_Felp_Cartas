@@ -34,15 +34,17 @@ class BackgroundGenerator {
             gradientColor2: null,
             pixelArtColor: null,
             userSelectedColor: false,
+            patternContent: 'pokemon', // 'pokemon' o 'types'
             sizeMode: 'fixed',
-            imageSize: 150,
-            sizeMin: 100,
-            sizeMax: 200,
-            pokemonDensity: 1.0,
+            imageSize: 200,
+            sizeMin: 20,
+            sizeMax: 400,
+            pokemonDensity: 1,
             pokemonCount: 3,
             pokemonMode: 'random',
             pokemonNames: [],
             selectedPokemonList: [], // Nueva lista para los Pokémon seleccionados manualmente
+            selectedTypes: [], // Tipos seleccionados para el patrón
             allowShiny: false,
             artStyle: 'smooth', // 'pixel-art' o 'smooth'
             generations: [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -67,6 +69,7 @@ class BackgroundGenerator {
         this.setupButtons();
         this.setupColorPalettes();
         this.setupMenu();
+        this.setupTypeSelector();
         this.loadPokemonNameList();
         this.generateBackground();
     }
@@ -244,6 +247,44 @@ class BackgroundGenerator {
             this.config.patternType = e.target.value;
             this.redrawPattern();
         });
+
+        // Selector de contenido del patrón (Pokémon vs Tipos)
+        const patternContentSelect = document.getElementById('pattern-content');
+        if (patternContentSelect) {
+            patternContentSelect.addEventListener('change', (e) => {
+                this.config.patternContent = e.target.value;
+                const isPokemon = e.target.value === 'pokemon';
+                
+                // Elementos específicos de modo Pokémon
+                const pokemonCountSection = document.getElementById('pokemon-count-section');
+                const pokemonModeSection = document.getElementById('pokemon-mode-section');
+                const randomPokemonSection = document.getElementById('random-pokemon-section');
+                const artStyleSection = document.getElementById('art-style-section');
+                const allowShinySection = document.getElementById('allow-shiny-section');
+                
+                // Elemento específico de modo Tipos
+                const typesSelectionSection = document.getElementById('types-selection-section');
+                
+                // Mostrar/ocultar secciones de pokémon
+                if (pokemonCountSection) pokemonCountSection.style.display = isPokemon ? 'block' : 'none';
+                if (pokemonModeSection) pokemonModeSection.style.display = isPokemon ? 'block' : 'none';
+                if (randomPokemonSection) randomPokemonSection.style.display = isPokemon ? 'block' : 'none';
+                if (artStyleSection) artStyleSection.style.display = isPokemon ? 'block' : 'none';
+                if (allowShinySection) allowShinySection.style.display = isPokemon ? 'block' : 'none';
+                
+                // Mostrar/ocultar sección de tipos
+                if (typesSelectionSection) typesSelectionSection.style.display = isPokemon ? 'none' : 'block';
+                
+                // Ocultar sección manual si estamos en modo tipos
+                const manualPokemonSection = document.getElementById('manual-pokemon-section');
+                if (manualPokemonSection && !isPokemon) {
+                    manualPokemonSection.style.display = 'none';
+                }
+                
+                this.pendingPokemonUpdate = true;
+                this.generateBackground();
+            });
+        }
 
         document.getElementById('size-mode').addEventListener('change', (e) => {
             this.config.sizeMode = e.target.value;
@@ -823,6 +864,71 @@ class BackgroundGenerator {
         });
     }
 
+    setupTypeSelector() {
+        const typesGrid = document.getElementById('types-grid');
+        if (!typesGrid) {
+            console.warn('types-grid element not found');
+            return;
+        }
+
+        // Verificar si getAllTypes está disponible
+        if (typeof getAllTypes !== 'function') {
+            console.error('getAllTypes function not found');
+            return;
+        }
+        
+        // Obtener todos los tipos de Pokémon
+        const types = getAllTypes();
+        
+        // Crear botones para cada tipo
+        types.forEach(type => {
+            const btn = document.createElement('button');
+            btn.className = 'type-toggle-btn active';
+            btn.dataset.type = type.key;
+            btn.style.backgroundColor = type.color;
+            btn.style.color = 'white';
+            btn.style.fontWeight = 'bold';
+            btn.style.padding = '8px 12px';
+            btn.style.margin = '4px';
+            btn.style.border = '2px solid white';
+            btn.style.borderRadius = '6px';
+            btn.style.cursor = 'pointer';
+            btn.style.transition = 'all 0.2s';
+            btn.style.opacity = '1';
+            btn.textContent = type.name;
+            
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                btn.style.borderColor = btn.classList.contains('active') ? 'white' : 'transparent';
+                btn.style.transform = btn.classList.contains('active') ? 'scale(1)' : 'scale(0.95)';
+                btn.style.opacity = btn.classList.contains('active') ? '1' : '0.6';
+                
+                // Actualizar lista de tipos seleccionados
+                this.config.selectedTypes = Array.from(typesGrid.querySelectorAll('.type-toggle-btn.active'))
+                    .map(b => b.dataset.type);
+                
+                // Si no hay tipos seleccionados, seleccionar todos
+                if (this.config.selectedTypes.length === 0) {
+                    typesGrid.querySelectorAll('.type-toggle-btn').forEach(b => {
+                        b.classList.add('active');
+                        b.style.borderColor = 'white';
+                        b.style.transform = 'scale(1)';
+                        b.style.opacity = '1';
+                    });
+                    this.config.selectedTypes = types.map(t => t.key);
+                } else {
+                    this.pendingPokemonUpdate = true;
+                    this.generateBackground();
+                }
+            });
+            
+            typesGrid.appendChild(btn);
+        });
+        
+        // Inicializar con todos los tipos seleccionados
+        this.config.selectedTypes = types.map(t => t.key);
+    }
+
     getRandomColor() {
         return this.pastelColors[Math.floor(Math.random() * this.pastelColors.length)];
     }
@@ -1382,33 +1488,102 @@ class BackgroundGenerator {
             return;
         }
         
-        // Obtener pokémons según el modo
-        let pokemonDataList;
-        if (this.config.pokemonMode === 'manual' && this.config.selectedPokemonList.length > 0) {
-            // Cargar pokémons por nombre desde la nueva lista
-            pokemonDataList = await Promise.all(
-                this.config.selectedPokemonList.map(name => loadPokemonData(name).catch(() => null))
-            );
-            pokemonDataList = pokemonDataList.filter(data => data !== null);
-        } else {
-            // Cargar pokémons aleatorios con colores similares según las generaciones seleccionadas
-            pokemonDataList = await getPokemonsByColorSimilarity(this.config.generations, this.config.pokemonCount);
-        }
-
-        // Si no se ha seleccionado un color, sugerir uno basado en los Pokémon
-        if (!this.config.userSelectedColor) {
-            const colorSuggestion = await suggestColorsFromPokemons(pokemonDataList, this.pastelColors);
-            
-            if (this.config.bgType === 'solid') {
-                this.config.bgColor = colorSuggestion.suggested;
-            } else if (this.config.bgType === 'gradient') {
-                // Para degradado, usar el color sugerido y otro aleatorio de la paleta
-                this.config.gradientColor1 = colorSuggestion.suggested;
-                const otherColors = colorSuggestion.alternatives.filter(c => c !== colorSuggestion.suggested);
-                this.config.gradientColor2 = otherColors[Math.floor(Math.random() * otherColors.length)];
-            } else if (this.config.bgType === 'pixel-art') {
-                this.config.pixelArtColor = colorSuggestion.suggested;
+        let images;
+        let isTypesMode = false;
+        
+        // Modo de patrón: Pokémon o Tipos
+        if (this.config.patternContent === 'types') {
+            // Cargar iconos de tipos
+            if (typeof pokemonTypes === 'undefined' || typeof loadTypeIcons !== 'function') {
+                console.error('Pokemon types data not loaded. Falling back to pokemon mode.');
+                this.config.patternContent = 'pokemon';
+            } else {
+                isTypesMode = true;
+                const typesSelected = this.config.selectedTypes.length > 0 
+                    ? this.config.selectedTypes 
+                    : Object.keys(pokemonTypes);
+                
+                images = await loadTypeIcons(typesSelected);
+                
+                // Sugerir color basado en los tipos seleccionados
+                if (!this.config.userSelectedColor && typesSelected.length > 0) {
+                    const typeData = typesSelected.map(key => pokemonTypes[key]);
+                    const colors = typeData.map(t => t.color);
+                    const suggestedColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    if (this.config.bgType === 'solid') {
+                        this.config.bgColor = suggestedColor;
+                    } else if (this.config.bgType === 'gradient') {
+                        this.config.gradientColor1 = colors[0];
+                        this.config.gradientColor2 = colors[colors.length - 1];
+                    } else if (this.config.bgType === 'pixel-art') {
+                        this.config.pixelArtColor = suggestedColor;
+                    }
+                }
             }
+        }
+        
+        // Modo Pokémon (original) - se ejecuta si no estamos en modo tipos o si el modo de tipos falla
+        if (!isTypesMode) {
+            // Modo Pokémon (original)
+            // Obtener pokémons según el modo
+            let pokemonDataList;
+            if (this.config.pokemonMode === 'manual' && this.config.selectedPokemonList.length > 0) {
+                // Cargar pokémons por nombre desde la nueva lista
+                pokemonDataList = await Promise.all(
+                    this.config.selectedPokemonList.map(name => loadPokemonData(name).catch(() => null))
+                );
+                pokemonDataList = pokemonDataList.filter(data => data !== null);
+            } else {
+                // Cargar pokémons aleatorios con colores similares según las generaciones seleccionadas
+                pokemonDataList = await getPokemonsByColorSimilarity(this.config.generations, this.config.pokemonCount);
+            }
+
+            // Si no se ha seleccionado un color, sugerir uno basado en los Pokémon
+            if (!this.config.userSelectedColor) {
+                const colorSuggestion = await suggestColorsFromPokemons(pokemonDataList, this.pastelColors);
+                
+                if (this.config.bgType === 'solid') {
+                    this.config.bgColor = colorSuggestion.suggested;
+                } else if (this.config.bgType === 'gradient') {
+                    // Para degradado, usar el color sugerido y otro aleatorio de la paleta
+                    this.config.gradientColor1 = colorSuggestion.suggested;
+                    const otherColors = colorSuggestion.alternatives.filter(c => c !== colorSuggestion.suggested);
+                    this.config.gradientColor2 = otherColors[Math.floor(Math.random() * otherColors.length)];
+                } else if (this.config.bgType === 'pixel-art') {
+                    this.config.pixelArtColor = colorSuggestion.suggested;
+                }
+            }
+
+            // Filtrar pokémons que se cargaron correctamente y cargar sus imágenes
+            const validPokemons = pokemonDataList.filter(data => data !== null);
+            images = await Promise.all(
+                validPokemons.map(pokemonData => {
+                    // Determinar si será shiny
+                    const isShiny = this.config.allowShiny && Math.random() < 0.1; // 10% probabilidad
+                    
+                    let imageUrl;
+                    if (this.config.artStyle === 'smooth') {
+                        // Usar arte oficial de alta calidad
+                        imageUrl = isShiny && pokemonData.sprites.other?.['official-artwork']?.front_shiny
+                            ? pokemonData.sprites.other['official-artwork'].front_shiny
+                            : pokemonData.sprites.other?.['official-artwork']?.front_default || pokemonData.sprites.front_default;
+                    } else if (this.config.artStyle === 'mystery-dungeon') {
+                        // Usar sprites de Mystery Dungeon (PMDCollab)
+                        const pokemonId = pokemonData.id;
+                        const formattedId = String(pokemonId).padStart(4, '0');
+                        const shinyFolder = isShiny ? 'Shiny' : 'Normal';
+                        imageUrl = `https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/${formattedId}/${shinyFolder}.png`;
+                    } else {
+                        // Usar sprites pixel art
+                        imageUrl = isShiny && pokemonData.sprites.front_shiny
+                            ? pokemonData.sprites.front_shiny
+                            : pokemonData.sprites.front_default;
+                    }
+                    
+                    return this.loadImage(imageUrl);
+                })
+            );
         }
 
         // Dibujar fondo
@@ -1424,36 +1599,6 @@ class BackgroundGenerator {
         } else if (this.config.bgType === 'pixel-art') {
             this.drawPixelArtBackground(this.config.pixelArtColor);
         }
-
-        // Filtrar pokémons que se cargaron correctamente y cargar sus imágenes
-        const validPokemons = pokemonDataList.filter(data => data !== null);
-        const images = await Promise.all(
-            validPokemons.map(pokemonData => {
-                // Determinar si será shiny
-                const isShiny = this.config.allowShiny && Math.random() < 0.1; // 10% probabilidad
-                
-                let imageUrl;
-                if (this.config.artStyle === 'smooth') {
-                    // Usar arte oficial de alta calidad
-                    imageUrl = isShiny && pokemonData.sprites.other?.['official-artwork']?.front_shiny
-                        ? pokemonData.sprites.other['official-artwork'].front_shiny
-                        : pokemonData.sprites.other?.['official-artwork']?.front_default || pokemonData.sprites.front_default;
-                } else if (this.config.artStyle === 'mystery-dungeon') {
-                    // Usar sprites de Mystery Dungeon (PMDCollab)
-                    const pokemonId = pokemonData.id;
-                    const formattedId = String(pokemonId).padStart(4, '0');
-                    const shinyFolder = isShiny ? 'Shiny' : 'Normal';
-                    imageUrl = `https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/${formattedId}/${shinyFolder}.png`;
-                } else {
-                    // Usar sprites pixel art
-                    imageUrl = isShiny && pokemonData.sprites.front_shiny
-                        ? pokemonData.sprites.front_shiny
-                        : pokemonData.sprites.front_default;
-                }
-                
-                return this.loadImage(imageUrl);
-            })
-        );
 
         // Guardar imágenes cargadas para uso posterior
         this.loadedImages = images;
