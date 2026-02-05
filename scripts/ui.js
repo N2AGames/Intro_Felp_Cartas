@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const openWitpBtn = document.getElementById('open-witp');
     if (openWitpBtn) {
         openWitpBtn.addEventListener('click', () => {
-            window.open('https://n2agames.github.io/WhoIsThisPokemon/');
+            window.open('https://n2agames.github.io/poke-paper-web/who-is-that-poke');
         });
     }
 
